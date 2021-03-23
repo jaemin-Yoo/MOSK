@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/fragment1_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="41dp"
+        android:layout_marginTop="150dp"
+        android:text="코로나 19 감염 확률"
+        android:textColor="@color/brown1"
+        android:textSize="40dp"
+        android:textStyle="bold"
+        android:fontFamily="@font/app_default"
+        ></TextView>
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/fragment1_title">
+
+
+        <com.github.mikephil.charting.charts.PieChart
+            android:id="@+id/pieChart"
+            android:layout_width="430dp"
+            android:layout_height="528dp"
+            android:layout_marginTop="-70dp"
+            android:layout_gravity="center_horizontal">
+        </com.github.mikephil.charting.charts.PieChart>
+
+        <com.like.LikeButton
+            app:icon_type="Heart"
+            app:icon_size="38dp"
+            android:id="@+id/star_button"
+            android:layout_height="150dp"
+            android:layout_width="150dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="120dp"
+            app:like_drawable="@drawable/icon_mask_liked"
+            app:unlike_drawable="@drawable/icon_mask_unliked"
+            app:circle_end_color="@color/yellow1"
+            app:circle_start_color="@color/mint1"
+            app:dots_primary_color="@color/red2"
+            app:dots_secondary_color="@color/red1"
+            app:anim_scale_factor="10"
+            />
+
+    </FrameLayout>
+
+
+</RelativeLayout>

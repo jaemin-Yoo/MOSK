@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="세번째 페이지"
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="160dp"
+        android:layout_marginRight="15sp"
+        android:visibility="invisible"
+        app:elevation="6dp"
+        app:pressedTranslationZ="12dp"
+        app:backgroundTint="@color/gray3"
+        app:srcCompat="@drawable/icon_save"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_home"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="90dp"
+        android:layout_marginRight="15sp"
+        android:visibility="invisible"
+        app:elevation="6dp"
+        app:pressedTranslationZ="12dp"
+
+        app:backgroundTint="@color/gray3"
+        app:srcCompat="@drawable/icon_home"/>
+
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_more"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="15sp"
+        app:backgroundTint="@color/mint2"
+
+        android:src="@drawable/ic_add"/>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
