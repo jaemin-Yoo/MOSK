@@ -2,6 +2,8 @@ package com.example.mosk;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -13,6 +15,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,10 +32,31 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager mViewPager;
     private TabLayout tabLayout;
 
+    //SQLite
+    SQLiteDatabase locationDB = null;
+    private final String dbname = "Mosk";
+    private final String tablename = "location";
+    private final String tablehome = "place";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Create DB, Table
+        locationDB = this.openOrCreateDatabase(dbname, MODE_PRIVATE, null);
+        locationDB.execSQL("CREATE TABLE IF NOT EXISTS "+tablename
+                +" (preTime datetime PRIMARY KEY, curTime datetime DEFAULT(datetime('now', 'localtime')), Latitude double NOT NULL, Longitude double NOT NULL)");
+
+        locationDB.execSQL("CREATE TABLE IF NOT EXISTS "+tablehome
+                +" (Latitude double NOT NULL, Longitude double NOT NULL, PRIMARY KEY(Latitude, Longitude))");
+
+        // 2주 전 위치정보 삭제
+        Cursor cursor = locationDB.rawQuery("SELECT * FROM "+tablename+" WHERE curTime<datetime('now','localtime','-14 days')", null);
+        if (cursor.getCount() != 0){
+            locationDB.execSQL("DELETE FROM "+tablename+" WHERE curTime<datetime('now','localtime','-14 days')");
+            Toast.makeText(this, "2주 전 위치정보가 삭제되었습니다.", Toast.LENGTH_SHORT).show();
+        }
 
         Toolbar toolbar=(Toolbar)findViewById(R.id.toolbar); //상단 toolbar(카테고리별 메뉴 확인 가능)
         AppBarLayout appBarLayout=findViewById(R.id.appbar); //상단 appbar(title, 메뉴 아이콘 위치)
