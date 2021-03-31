@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -47,6 +48,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MapViewFragment extends Fragment implements OnMapReadyCallback, ActivityCompat.OnRequestPermissionsResultCallback {
@@ -485,6 +487,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
         fab_save.setOnClickListener(listener);
     }
 
+    /*클릭리스너 클래스*/
     private class ClickListener implements View.OnClickListener{
         @Override
         public void onClick(View v) {
@@ -496,6 +499,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
                 case R.id.fab_home:
                     toggleFab();
                     Toast.makeText(mContext,"자주 가는 장소 ",Toast.LENGTH_SHORT).show();
+                    dialog_home();
                     break;
                 case R.id.fab_save:
                     toggleFab();
@@ -505,6 +509,53 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
                     break;
             }
         }
+    }
+
+    private void dialog_home(){
+        final List<String> PlaceList = new ArrayList<>();
+        PlaceList.add("집");
+        PlaceList.add("회사");
+        PlaceList.add("학교");
+        PlaceList.add("숙소");
+        PlaceList.add("기타");
+
+        final CharSequence[] items =  PlaceList.toArray(new String[ PlaceList.size()]);
+
+        final List SelectedItems  = new ArrayList();
+        int defaultItem = 0;
+        SelectedItems.add(defaultItem);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this.mContext);
+        builder.setTitle("자주 가는 장소 설정");
+        builder.setSingleChoiceItems(items, defaultItem,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        SelectedItems.clear();
+                        SelectedItems.add(which);
+                    }
+                });
+        builder.setPositiveButton("Ok",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        String msg="";
+
+                        if (!SelectedItems.isEmpty()) {
+                            int index = (int) SelectedItems.get(0);
+                            msg = PlaceList.get(index);
+                        }
+                        Toast.makeText(mContext,
+                                "Items Selected.\n"+ msg , Toast.LENGTH_LONG)
+                                .show();
+                    }
+                });
+        builder.setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+        builder.show();
     }
 
     public void toggleFab(){

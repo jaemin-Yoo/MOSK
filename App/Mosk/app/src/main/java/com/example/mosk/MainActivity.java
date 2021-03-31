@@ -43,8 +43,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-
         //Create DB, Table
         locationDB = this.openOrCreateDatabase(dbname, MODE_PRIVATE, null);
         locationDB.execSQL("CREATE TABLE IF NOT EXISTS "+tablename

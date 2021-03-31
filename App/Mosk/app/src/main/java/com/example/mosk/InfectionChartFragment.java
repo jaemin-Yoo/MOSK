@@ -2,22 +2,17 @@ package com.example.mosk;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Bundle;
-import android.text.SpannableString;
-import android.text.style.UnderlineSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.IdRes;
 import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.ViewPager;
 
-import android.animation.Animator;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.PieChart;
@@ -26,22 +21,20 @@ import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.PercentFormatter;
-import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.ColorTemplate;
-import com.google.android.material.button.MaterialButton;
-
-import org.w3c.dom.Text;
+import com.like.LikeButton;
+import com.like.OnLikeListener;
 
 import java.util.ArrayList;
 
-public class InfectionChartFragment extends Fragment {
+public class InfectionChartFragment<Likebutton> extends Fragment{
     ViewGroup viewGroup;
     Context mContext;
     TextView fragment_title;
 
-    /*btn*/
-    public boolean isbtnActivate,isbtnPress=false;
-    private ImageButton infection_btn2;
+    LikeButton mask_btn;
+
+    ClickListener clickListener=new ClickListener();
     /*chart*/
     private PieChart chart;
 
@@ -61,7 +54,20 @@ public class InfectionChartFragment extends Fragment {
 
         chart=viewGroup.findViewById(R.id.pieChart);
         fragment_title=viewGroup.findViewById(R.id.fragment1_title);
+        mask_btn= viewGroup.findViewById(R.id.mask_btn);
+        mask_btn.setOnLikeListener(new OnLikeListener() {
+            @Override
+            public void liked(LikeButton likeButton) {
+                Toast.makeText(mContext,"마스크 버튼을 클릭하셨습니다.",Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void unLiked(LikeButton likeButton) {
+                Toast.makeText(mContext,"마스크 버튼을 클릭 취소 하셨습니다.",Toast.LENGTH_SHORT).show();
+            }
+        });
         setChart(chart);
+
 
         return viewGroup;
     }
@@ -104,7 +110,7 @@ public class InfectionChartFragment extends Fragment {
 
         ArrayList<PieEntry> entries=new ArrayList<>();
 
-        entries.add(new PieEntry(60,"감염 위험률"));
+        entries.add(new PieEntry(60,"감염 위험률"));  // 감염되는 값을 여기에 저장
         entries.add(new PieEntry(40,"감염 안전율"));
 
         PieDataSet dataSet=new PieDataSet(entries,"코로나 감염확률");
@@ -130,4 +136,15 @@ public class InfectionChartFragment extends Fragment {
         chart.animateXY(1400,1400);
     }
 
+
+    /*클릭리스너 클래스*/
+    private class ClickListener implements View.OnClickListener{
+        @Override
+        public void onClick(View v) {
+            switch(v.getId()){
+                default:
+                    break;
+            }
+        }
+    }
 }
