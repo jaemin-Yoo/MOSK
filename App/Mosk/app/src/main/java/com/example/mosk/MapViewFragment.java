@@ -29,7 +29,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
-import com.bumptech.glide.Glide;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -104,6 +103,9 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
     //Image
     private ImageButton home;
 
+    //Button
+    private Button start, stop;
+
     public void onAttach(Context context){
         super.onAttach(context);
         mContext=context;
@@ -117,6 +119,26 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         viewGroup= (ViewGroup) inflater.inflate(R.layout.mapview_fragment,container,false); //xml과 연결
+
+        start = viewGroup.findViewById(R.id.start_service);
+        start.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(mContext, "Start", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getActivity(), MyService.class);
+                getActivity().startService(intent);
+            }
+        });
+
+        stop = viewGroup.findViewById(R.id.stop_service);
+        stop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(mContext, "Stop", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getActivity(), MyService.class);
+                getActivity().stopService(intent);
+            }
+        });
 
         locationDB = getActivity().openOrCreateDatabase(dbname, getActivity().MODE_PRIVATE, null);
 
@@ -498,7 +520,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
                     break;
                 case R.id.fab_home:
                     toggleFab();
-                    Toast.makeText(mContext,"자주 가는 장소 ",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext,"자주 가는 장소",Toast.LENGTH_SHORT).show();
                     dialog_home();
                     break;
                 case R.id.fab_save:
@@ -576,6 +598,8 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
         }
         isFabOpen=!isFabOpen;
     }
+
+
 
 }
 
