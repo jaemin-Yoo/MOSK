@@ -100,11 +100,9 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
     private final String tablename = "location";
     private final String tablehome = "place";
 
-    //Image
-    private ImageButton home;
-
     //Button
     private Button start, stop;
+    private Intent serviceIntent;
 
     public void onAttach(Context context){
         super.onAttach(context);
@@ -124,9 +122,15 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
         start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(mContext, "Start", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(getActivity(), MyService.class);
-                getActivity().startService(intent);
+                Log.d(TAG,"start!");
+                if (MyService.serviceIntent==null){
+                    serviceIntent = new Intent(getActivity(), MyService.class);
+                    getActivity().startService(serviceIntent);
+                    Toast.makeText(getContext(), "Start", Toast.LENGTH_SHORT).show();
+                } else{
+                    serviceIntent = MyService.serviceIntent;
+                    Toast.makeText(getContext(), "already..", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -134,9 +138,15 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
         stop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(mContext, "Stop", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(getActivity(), MyService.class);
-                getActivity().stopService(intent);
+                Log.d(TAG,"stop!");
+                if (MyService.serviceIntent!=null){
+                    serviceIntent = MyService.serviceIntent;
+                    MyService.serviceIntent = null;
+                    getActivity().stopService(serviceIntent);
+                    Toast.makeText(getContext(), "Stop", Toast.LENGTH_SHORT).show();
+                } else{
+                    Toast.makeText(getContext(), "No service..", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
