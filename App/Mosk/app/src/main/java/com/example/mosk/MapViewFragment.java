@@ -29,6 +29,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -117,6 +118,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         viewGroup= (ViewGroup) inflater.inflate(R.layout.mapview_fragment,container,false); //xml과 연결
+
 
         start = viewGroup.findViewById(R.id.start_service);
         start.setOnClickListener(new View.OnClickListener() {
@@ -510,6 +512,9 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
         fab_more=viewGroup.findViewById(R.id.fab_more);
         fab_home=viewGroup.findViewById(R.id.fab_home);
         fab_save=viewGroup.findViewById(R.id.fab_save);
+
+        Glide.with(this).load("https://i.imgur.com/n76lRoV.png").into(fab_home);
+        Glide.with(this).load("https://i.imgur.com/qteERBt.png").into(fab_save);
 
         fab_open = AnimationUtils.loadAnimation(mContext, R.anim.fab_open);
         fab_close= AnimationUtils.loadAnimation(mContext, R.anim.fab_close);

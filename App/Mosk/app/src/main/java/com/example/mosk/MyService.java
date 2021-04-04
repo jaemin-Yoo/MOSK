@@ -77,8 +77,8 @@ public class MyService extends Service {
                 Longitude = location.getLongitude();
 
                 Log.d(TAG, "Service Waiting...");
-                lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, 50, gpsLocationListener); //Location Update (1분마다 30m거리 이동 시)
-                lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60000, 50, gpsLocationListener);
+                lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 30, gpsLocationListener); //Location Update (1분마다 30m거리 이동 시)
+                lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 30, gpsLocationListener);
             }
         }
         return START_STICKY;
@@ -97,15 +97,15 @@ public class MyService extends Service {
                 Log.d(TAG, "Timer: "+timer);
             }
 
-            if (timer > 300) {
-                //5분이상 장소에 머물렀을 시 위치저장
+            if (timer > 600) {
+                //10분이상 장소에 머물렀을 시 위치저장
                 Cursor cursor_h = locationDB.rawQuery("SELECT * FROM "+tablehome, null);
                 if (cursor_h.getCount() != 0){
                     while(cursor_h.moveToNext()) {
                         Lat_h = cursor_h.getDouble(0);
                         Long_h = cursor_h.getDouble(1);
 
-                        if (getDistance(Lat_h, Long_h, pre_lat, pre_lng) > 50){
+                        if (getDistance(Lat_h, Long_h, pre_lat, pre_lng) > 30){
                             locationDB.execSQL("INSERT INTO "+tablename+"(preTime, Latitude, Longitude) VALUES('"+preTime+"', "+pre_lat+", "+pre_lng+")");
                             Log.d(TAG, "위치저장!");
                         }

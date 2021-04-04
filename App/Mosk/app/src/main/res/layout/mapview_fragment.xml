@@ -45,8 +45,7 @@
         android:visibility="invisible"
         app:elevation="6dp"
         app:pressedTranslationZ="12dp"
-        app:backgroundTint="@color/gray3"
-        app:srcCompat="@drawable/icon_save"/>
+        app:backgroundTint="@color/gray3"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_home"
@@ -60,8 +59,7 @@
         app:elevation="6dp"
         app:pressedTranslationZ="12dp"
 
-        app:backgroundTint="@color/gray3"
-        app:srcCompat="@drawable/icon_home"/>
+        app:backgroundTint="@color/gray3"/>
 
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

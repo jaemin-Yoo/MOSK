@@ -23,6 +23,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.viewpager.widget.ViewPager;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
@@ -123,9 +124,9 @@ public class MainActivity extends AppCompatActivity {
         ImageView imageView3=view3.findViewById(R.id.img_tab);
         TextView textView3= view3.findViewById(R.id.txt_tab);
 
-        imageView1.setImageResource(R.drawable.menu_virus);
-        imageView2.setImageResource(R.drawable.menu_news);
-        imageView3.setImageResource(R.drawable.menu_location);
+        Glide.with(this).load("https://i.imgur.com/QxYtzvt.png").into(imageView1);
+        Glide.with(this).load("https://i.imgur.com/Fmsenfe.png").into(imageView2);
+        Glide.with(this).load("https://i.imgur.com/EY6WNmH.png").into(imageView3);
 
         textView1.setText("감염확률 확인");
         textView2.setText("코로나 뉴스");
