@@ -102,7 +102,8 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
     private final String tablehome = "place";
 
     //Button
-    private Button start, stop;
+    private Button start, stop, delete;
+
     private Intent serviceIntent;
 
     public void onAttach(Context context){
@@ -149,6 +150,16 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
                 } else{
                     Toast.makeText(getContext(), "No service..", Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+
+        delete = viewGroup.findViewById(R.id.btn_delete);
+        delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "delete..");
+                locationDB.execSQL("DELETE FROM "+tablename); // 추후 삭제해야되는 코드
+                Toast.makeText(mContext, "모든 위치 삭제", Toast.LENGTH_SHORT).show();
             }
         });
 

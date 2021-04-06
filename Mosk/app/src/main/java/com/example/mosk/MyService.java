@@ -42,7 +42,6 @@ public class MyService extends Service {
     SQLiteDatabase locationDB;
     private final String dbname = "Mosk";
     private final String tablename = "location";
-    private final String tablehome = "place";
 
     //GPS
     private String preTime;
@@ -51,7 +50,7 @@ public class MyService extends Service {
     private double Lat_h = 0.0, Long_h = 0.0;
     private LocationManager lm;
     private Location location;
-    private long timer, past, now = 0;
+    private boolean location_state = false;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -68,18 +67,72 @@ public class MyService extends Service {
                 // Permission
             }
             location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            if (location == null){
+            if (location == null) {
                 location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             }
 
-            if (location != null){
+            if (location != null) {
                 Latitude = location.getLatitude();
                 Longitude = location.getLongitude();
 
-                Log.d(TAG, "Service Waiting...");
-                lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 30, gpsLocationListener); //Location Update (1분마다 30m거리 이동 시)
-                lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 30, gpsLocationListener);
+                lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, gpsLocationListener); //Location Update
+                lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 1, gpsLocationListener);
             }
+
+            mThread = new Thread("My thread") {
+                @Override
+                public void run() {
+                    while (true){
+                        try{
+                            Log.d(TAG, "----------------------------");
+                            Log.d(TAG, "이전 위치: "+pre_lat+" "+pre_lng);
+                            Log.d(TAG, "최근 위치: "+Latitude+" "+Longitude);
+
+                            double distance = 0.0;
+                            distance = getDistance(pre_lat, pre_lng, Latitude, Longitude);
+
+                            if (distance < 30 && location_state == false){
+                                //현재시간 가져오기
+                                long now = System.currentTimeMillis();
+                                Date mDate = new Date(now);
+                                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                                preTime = simpleDateFormat.format(mDate);
+                                Log.d(TAG, "거리: "+distance+" // 최초저장");
+                                Log.d(TAG, "최초저장 시간 : "+preTime);
+
+                                location_state = true;
+                            } else if (distance > 30 && location_state == true){
+                                locationDB.execSQL("INSERT INTO "+tablename+"(preTime, Latitude, Longitude) VALUES('"+preTime+"', "+pre_lat+", "+pre_lng+")");
+                                location_state = false;
+                                Log.d(TAG, "거리: "+distance+" // 위치저장");
+                            } else {
+                                Log.d(TAG, "거리: "+distance+" // 저장안함");
+                            }
+
+                            if (location_state == false){
+                                //최초저장 시 계속해서 이전 위치가 업데이트 되는 것을 방지
+                                pre_lat = Latitude;
+                                pre_lng = Longitude;
+                            }
+
+                            // DB 데이터 확인
+                            Cursor cursor = locationDB.rawQuery("SELECT * FROM "+tablename, null);
+                            while(cursor.moveToNext()){
+                                String pretime = cursor.getString(0);
+                                String curtime = cursor.getString(1);
+                                double Lat = cursor.getDouble(2);
+                                double Long = cursor.getDouble(3);
+                                Log.d(TAG,"저장된 데이터: "+pretime+" "+curtime+" "+Lat+" "+Long);
+                            }
+
+                            Thread.sleep(300000);
+                        } catch (InterruptedException e){
+                            break;
+                        }
+                    }
+                }
+            };
+            mThread.start();
         }
         return START_STICKY;
     }
@@ -90,53 +143,6 @@ public class MyService extends Service {
             Latitude = location.getLatitude();
             Longitude = location.getLongitude();
             Log.d(TAG, "Update: "+Latitude+" "+Longitude);
-
-            now = System.currentTimeMillis();
-            if (past != 0){
-                timer = (now - past)/1000; // 타이머 계산
-                Log.d(TAG, "Timer: "+timer);
-            }
-
-            if (timer > 600) {
-                //10분이상 장소에 머물렀을 시 위치저장
-                Cursor cursor_h = locationDB.rawQuery("SELECT * FROM "+tablehome, null);
-                if (cursor_h.getCount() != 0){
-                    while(cursor_h.moveToNext()) {
-                        Lat_h = cursor_h.getDouble(0);
-                        Long_h = cursor_h.getDouble(1);
-
-                        if (getDistance(Lat_h, Long_h, pre_lat, pre_lng) > 30){
-                            locationDB.execSQL("INSERT INTO "+tablename+"(preTime, Latitude, Longitude) VALUES('"+preTime+"', "+pre_lat+", "+pre_lng+")");
-                            Log.d(TAG, "위치저장!");
-                        }
-                    }
-                } else{
-                    locationDB.execSQL("INSERT INTO "+tablename+"(preTime, Latitude, Longitude) VALUES('"+preTime+"', "+pre_lat+", "+pre_lng+")");
-                    Log.d(TAG, "위치저장!");
-                }
-            }
-
-            //움직이고 있을 때 위치업데이트
-            Date mDate = new Date(now); // 위치업데이트 시간 구하기
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            preTime = simpleDateFormat.format(mDate);
-
-            past = System.currentTimeMillis();
-            pre_lat = Latitude;
-            pre_lng = Longitude;
-
-            Log.d(TAG, "위치업데이트!");
-            Log.d(TAG, "위치업데이트 시간 : "+preTime);
-
-            // DB 데이터 확인
-            Cursor cursor = locationDB.rawQuery("SELECT * FROM "+tablename, null);
-            while(cursor.moveToNext()){
-                String pretime = cursor.getString(0);
-                String curtime = cursor.getString(1);
-                double Lat = cursor.getDouble(2);
-                double Long = cursor.getDouble(3);
-                Log.d(TAG,"저장된 데이터: "+pretime+" "+curtime+" "+Lat+" "+Long);
-            }
         }
 
         @Override

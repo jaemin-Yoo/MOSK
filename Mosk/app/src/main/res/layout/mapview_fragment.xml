@@ -32,6 +32,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="서비스 중지"/>
+        <Button
+            android:id="@+id/btn_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="위치 삭제"/>
 
     </LinearLayout>
 
