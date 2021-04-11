@@ -1,7 +1,73 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+<?xml version="1.0" encoding="UTF-8"?>
+
+    <LinearLayout android:orientation="vertical" android:layout_height="match_parent" android:layout_width="match_parent" xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <TextView android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="지역 검색"
+        android:id="@+id/textView1"
+        android:layout_marginRight="8dp"
+        android:textSize="16sp"
+        android:layout_marginTop="118dp"/>
+
+
+    <RelativeLayout
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content">
+
+        <EditText android:layout_height="wrap_content"
+            android:layout_width="330dp"
+            android:id="@+id/editTextFilter"
+            android:singleLine="true"/>
+
+        <Button android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="검색"
+            android:id="@+id/search_btn"
+            android:layout_toRightOf="@id/editTextFilter">
+        </Button>
+
+    </RelativeLayout>
+
+    <RelativeLayout android:layout_height="wrap_content"
+        android:layout_width="wrap_content">
+    </RelativeLayout>
+
+
+    <RadioGroup
+        android:orientation="horizontal"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:id="@+id/radioGroup">
+
+        <RadioButton
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:text="국내 검색"
+            android:id="@+id/rg_korea"
+            android:layout_weight="1"/>
+
+        <RadioButton
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:text="국외 검색"
+            android:id="@+id/rg_abroad"
+            android:layout_weight="1"/>
+
+    </RadioGroup>
+
+
+     <RelativeLayout android:layout_height="wrap_content" android:layout_width="wrap_content">
+
+        <ListView android:layout_height="match_parent" android:layout_width="170dp" android:id="@+id/category_list" android:textFilterEnabled="true"/>
+
+        <androidx.recyclerview.widget.RecyclerView android:layout_height="match_parent"
+            android:layout_width="280dp"
+            android:id="@+id/recycler_View"
+            android:layout_toRightOf="@+id/category_list"
+            android:scrollbars="vertical"
+            android:layout_toEndOf="@+id/category_list"/>
+
+    </RelativeLayout>
 
 </LinearLayout>
