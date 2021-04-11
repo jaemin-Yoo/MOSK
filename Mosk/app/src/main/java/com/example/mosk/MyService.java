@@ -53,31 +53,37 @@ public class MyService extends Service {
     private boolean location_state = false;
 
     @Override
+    public void onCreate() {
+        super.onCreate();
+        
+        locationDB = this.openOrCreateDatabase(dbname, MODE_PRIVATE, null);
+
+        lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // Permission
+        }
+        location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        if (location == null) {
+            location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        }
+
+        if (location != null) {
+            Latitude = location.getLatitude();
+            Longitude = location.getLongitude();
+
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, gpsLocationListener); //Location Update
+            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 1, gpsLocationListener);
+        }
+    }
+
+    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         serviceIntent = intent;
 
         initializeNotification();
 
         if (mThread == null) {
-            locationDB = this.openOrCreateDatabase(dbname, MODE_PRIVATE, null);
-
-            lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // Permission
-            }
-            location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            if (location == null) {
-                location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            }
-
-            if (location != null) {
-                Latitude = location.getLatitude();
-                Longitude = location.getLongitude();
-
-                lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, gpsLocationListener); //Location Update
-                lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 1, gpsLocationListener);
-            }
 
             mThread = new Thread("My thread") {
                 @Override

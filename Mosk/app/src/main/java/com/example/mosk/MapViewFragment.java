@@ -81,7 +81,8 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
     // 앱을 실행하기 위해 필요한 퍼미션을 정의합니다.
     String[] REQUIRED_PERMISSIONS = {
             Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.READ_PHONE_STATE,Manifest.permission.READ_PHONE_NUMBERS
+            Manifest.permission.READ_PHONE_STATE,Manifest.permission.READ_PHONE_NUMBERS,
+            Manifest.permission.ACCESS_BACKGROUND_LOCATION
     };  // 외부 저장소
 
     Location mCurrentLocatiion;
