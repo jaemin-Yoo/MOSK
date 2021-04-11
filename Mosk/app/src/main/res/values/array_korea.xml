@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="korea_city">
+        <item>국내 선택</item>
+        <item>서울 특별시</item>
+    </string-array>
+</resources>
