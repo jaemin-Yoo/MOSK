@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         //Create DB, Table
         locationDB = this.openOrCreateDatabase(dbname, MODE_PRIVATE, null);
         locationDB.execSQL("CREATE TABLE IF NOT EXISTS "+tablename
-                +" (preTime datetime PRIMARY KEY, curTime datetime DEFAULT(datetime('now', 'localtime')), Latitude double NOT NULL, Longitude double NOT NULL)");
+                +" (preTime datetime PRIMARY KEY, curTime datetime DEFAULT NULL, Latitude double NOT NULL, Longitude double NOT NULL)");
 
         locationDB.execSQL("CREATE TABLE IF NOT EXISTS "+tablehome
                 +" (Latitude double NOT NULL, Longitude double NOT NULL, PRIMARY KEY(Latitude, Longitude))");

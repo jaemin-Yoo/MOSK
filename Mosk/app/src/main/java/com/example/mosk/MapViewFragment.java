@@ -321,7 +321,11 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
             markerOptions.title("자주가는장소");
             Log.d(TAG, "1");
         } else{
-            markerOptions.title(pretime+" ~ "+curtime);
+            if (curtime == null){
+                markerOptions.title("동선 저장 중..");
+            } else{
+                markerOptions.title(pretime+" ~ "+curtime);
+            }
             Log.d(TAG, "0");
         }
         currentMarker[marker_cnt] = mMap.addMarker(markerOptions);

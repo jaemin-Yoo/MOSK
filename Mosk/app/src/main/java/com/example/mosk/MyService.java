@@ -51,6 +51,7 @@ public class MyService extends Service {
     private LocationManager lm;
     private Location location;
     private boolean location_state = false;
+    private static final int std_distance = 30; // 기준 거리
 
     @Override
     public void onCreate() {
@@ -72,8 +73,8 @@ public class MyService extends Service {
             Latitude = location.getLatitude();
             Longitude = location.getLongitude();
 
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, gpsLocationListener); //Location Update
-            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 1, gpsLocationListener);
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, 0, gpsLocationListener); //Location Update
+            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60000, 0, gpsLocationListener);
         }
     }
 
@@ -97,37 +98,55 @@ public class MyService extends Service {
                             double distance = 0.0;
                             distance = getDistance(pre_lat, pre_lng, Latitude, Longitude);
 
-                            if (distance < 30 && location_state == false){
+                            // DB 데이터 확인
+                            Cursor cursor = locationDB.rawQuery("SELECT * FROM "+tablename+" WHERE curTime is NULL LIMIT 1", null);
+                            int cnt = cursor.getCount();
+                            Log.d(TAG, "cnt = "+cnt);
+
+                            if (distance < std_distance && cnt == 0){
+                                try{
+                                    locationDB.execSQL("UPDATE "+tablename+" SET"+" curTime = null WHERE preTime ='"+preTime+"'");
+                                    Log.d(TAG, "Location Improvement..");
+                                } catch (Exception e){
+                                    Log.d(TAG,"Error");
+                                }
+                            }
+
+                            // DB 데이터 확인
+                            Cursor cursor2 = locationDB.rawQuery("SELECT * FROM "+tablename+" WHERE curTime is NULL LIMIT 1", null);
+                            cnt = cursor2.getCount();
+                            Log.d(TAG, "cnt = "+cnt);
+
+                            if (distance < std_distance && cnt == 0){
                                 //현재시간 가져오기
                                 long now = System.currentTimeMillis();
                                 Date mDate = new Date(now);
                                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                                 preTime = simpleDateFormat.format(mDate);
+                                locationDB.execSQL("INSERT INTO "+tablename+"(preTime, Latitude, Longitude) VALUES('"+preTime+"', "+pre_lat+", "+pre_lng+")");
                                 Log.d(TAG, "거리: "+distance+" // 최초저장");
                                 Log.d(TAG, "최초저장 시간 : "+preTime);
-
-                                location_state = true;
-                            } else if (distance > 30 && location_state == true){
-                                locationDB.execSQL("INSERT INTO "+tablename+"(preTime, Latitude, Longitude) VALUES('"+preTime+"', "+pre_lat+", "+pre_lng+")");
-                                location_state = false;
+                            } else if (distance > std_distance && distance < 99999 && cnt == 1){
+                                locationDB.execSQL("UPDATE "+tablename+" SET"+" curTime = datetime('now', 'localtime')"+" WHERE curTime is NULL");
                                 Log.d(TAG, "거리: "+distance+" // 위치저장");
-                            } else {
-                                Log.d(TAG, "거리: "+distance+" // 저장안함");
-                            }
-
-                            if (location_state == false){
-                                //최초저장 시 계속해서 이전 위치가 업데이트 되는 것을 방지
+                            } else if((distance > std_distance && cnt == 0) || pre_lat == 0.0){
+                                Log.d(TAG, "거리: "+distance+" // 이동 중..");
+                                preTime = null;
                                 pre_lat = Latitude;
                                 pre_lng = Longitude;
+                            } else{
+                                Log.d(TAG, "거리: "+distance+" // 동선 저장 중..");
                             }
 
+                            Log.d(TAG, "pre_location: "+pre_lat+" "+pre_lng);
+
                             // DB 데이터 확인
-                            Cursor cursor = locationDB.rawQuery("SELECT * FROM "+tablename, null);
-                            while(cursor.moveToNext()){
-                                String pretime = cursor.getString(0);
-                                String curtime = cursor.getString(1);
-                                double Lat = cursor.getDouble(2);
-                                double Long = cursor.getDouble(3);
+                            Cursor cursor3 = locationDB.rawQuery("SELECT * FROM "+tablename, null);
+                            while(cursor3.moveToNext()){
+                                String pretime = cursor3.getString(0);
+                                String curtime = cursor3.getString(1);
+                                double Lat = cursor3.getDouble(2);
+                                double Long = cursor3.getDouble(3);
                                 Log.d(TAG,"저장된 데이터: "+pretime+" "+curtime+" "+Lat+" "+Long);
                             }
 
