@@ -72,8 +72,8 @@ public class MyService extends Service {
             Latitude = location.getLatitude();
             Longitude = location.getLongitude();
 
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, gpsLocationListener); //Location Update
-            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 1, gpsLocationListener);
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, 0, gpsLocationListener); //Location Update
+            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60000, 0, gpsLocationListener);
         }
     }
 
