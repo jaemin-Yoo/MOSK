@@ -1,11 +1,14 @@
 package com.example.mosk;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,18 +36,35 @@ import com.github.mikephil.charting.utils.ColorTemplate;
 import com.like.LikeButton;
 import com.like.OnLikeListener;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
+import static android.content.Context.MODE_PRIVATE;
+
 public class InfectionChartFragment<Likebutton> extends Fragment{
+    private String TAG = "Log";
+
+    //Layout
     ViewGroup viewGroup;
     Context mContext;
     TextView fragment_title;
 
+    //Button
     LikeButton mask_btn;
 
     ClickListener clickListener=new ClickListener();
+
     /*chart*/
     private PieChart chart;
+
+    //SQLite
+    SQLiteDatabase locationDB = null;
+    private final String dbname = "Mosk";
+    private final String tablename = "location";
+    private final String tablehome = "place";
+
+    //Socket
+    private String data = "";
 
     public void onAttach(Context context){
         super.onAttach(context);
@@ -58,6 +78,12 @@ public class InfectionChartFragment<Likebutton> extends Fragment{
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        //Create DB, Table
+        locationDB = getActivity().openOrCreateDatabase(dbname, MODE_PRIVATE, null);
+        locationDB.execSQL("CREATE TABLE IF NOT EXISTS "+tablename
+                +" (preTime datetime PRIMARY KEY, curTime datetime DEFAULT(datetime('now', 'localtime')), Latitude double NOT NULL, Longitude double NOT NULL)");
+
+
         viewGroup= (ViewGroup) inflater.inflate(R.layout.infection_fragment,container,false); //xml과 연결
 
         chart=viewGroup.findViewById(R.id.pieChart);
@@ -66,7 +92,36 @@ public class InfectionChartFragment<Likebutton> extends Fragment{
         mask_btn.setOnLikeListener(new OnLikeListener() {
             @Override
             public void liked(LikeButton likeButton) {
-                Toast.makeText(mContext,"마스크 버튼을 클릭하셨습니다.",Toast.LENGTH_SHORT).show();
+                if (MyService.serviceIntent!=null){
+                    if (MyService.networKWriter!=null){
+                        Cursor cursor = locationDB.rawQuery("SELECT * FROM "+tablename, null);
+                        while(cursor.moveToNext()){
+                            String pretime = cursor.getString(0);
+                            String curtime = cursor.getString(1);
+                            double Lat = cursor.getDouble(2);
+                            double Long = cursor.getDouble(3);
+
+                            if (curtime != null){
+                                // 동선 저장 중인 위치는 전송 x
+                                PrintWriter out = new PrintWriter(MyService.networKWriter, true);
+                                data = pretime+" "+curtime+" "+Lat+" "+Long;
+                                out.println(data);
+                                Log.d(TAG,"전송된 데이터: "+data);
+                            }
+                        }
+
+                        if (data==""){
+                            Toast.makeText(getContext(), "전송 할 데이터가 없습니다.", Toast.LENGTH_SHORT).show();
+                        } else{
+                            Toast.makeText(getContext(), "데이터를 전송하였습니다.", Toast.LENGTH_SHORT).show();
+                        }
+                    } else{
+                        Toast.makeText(getContext(), "서버 상태를 확인하세요.", Toast.LENGTH_SHORT).show();
+                    }
+                } else{
+                    Toast.makeText(getContext(), "백그라운드를 실행 해 주세요.", Toast.LENGTH_SHORT).show();
+                }
+                //Toast.makeText(mContext,"마스크 버튼을 클릭하셨습니다.",Toast.LENGTH_SHORT).show();
             }
 
             @Override

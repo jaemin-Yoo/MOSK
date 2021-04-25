@@ -26,6 +26,12 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -34,9 +40,6 @@ public class MyService extends Service {
 
     public static Intent serviceIntent;
     public String TAG = "Log";
-
-    //Service
-    private Thread mThread;
 
     //SQLite
     SQLiteDatabase locationDB;
@@ -47,16 +50,23 @@ public class MyService extends Service {
     private String preTime;
     private double Latitude, Longitude;
     private double pre_lat = 0.0, pre_lng = 0.0;
-    private double Lat_h = 0.0, Long_h = 0.0;
     private LocationManager lm;
     private Location location;
     private boolean location_state = false;
     private static final int std_distance = 30; // 기준 거리
 
+    //Socket
+    private Socket socket;
+    private BufferedReader networkReader;
+    public static BufferedWriter networKWriter;
+    private String recv_data;
+    private String ip = "220.122.46.204";
+    private int port = 8001;
+
     @Override
     public void onCreate() {
         super.onCreate();
-        
+
         locationDB = this.openOrCreateDatabase(dbname, MODE_PRIVATE, null);
 
         lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -84,83 +94,116 @@ public class MyService extends Service {
 
         initializeNotification();
 
-        if (mThread == null) {
+        sThread.start();
+        mThread.start();
 
-            mThread = new Thread("My thread") {
-                @Override
-                public void run() {
-                    while (true){
-                        try{
-                            Log.d(TAG, "----------------------------");
-                            Log.d(TAG, "이전 위치: "+pre_lat+" "+pre_lng);
-                            Log.d(TAG, "최근 위치: "+Latitude+" "+Longitude);
+        return START_STICKY;
+    }
 
-                            double distance = 0.0;
-                            distance = getDistance(pre_lat, pre_lng, Latitude, Longitude);
+    private Thread sThread = new Thread("Socket thread"){
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    setSocket(ip, port); // 서버 소켓 생성
+                    Log.d(TAG, "Make Socket !");
 
-                            // DB 데이터 확인
-                            Cursor cursor = locationDB.rawQuery("SELECT * FROM "+tablename+" WHERE curTime is NULL LIMIT 1", null);
-                            int cnt = cursor.getCount();
-                            Log.d(TAG, "cnt = "+cnt);
-
-                            if (distance < std_distance && cnt == 0){
-                                try{
-                                    locationDB.execSQL("UPDATE "+tablename+" SET"+" curTime = null WHERE preTime ='"+preTime+"'");
-                                    Log.d(TAG, "Location Improvement..");
-                                } catch (Exception e){
-                                    Log.d(TAG,"Error");
-                                }
-                            }
-
-                            // DB 데이터 확인
-                            Cursor cursor2 = locationDB.rawQuery("SELECT * FROM "+tablename+" WHERE curTime is NULL LIMIT 1", null);
-                            cnt = cursor2.getCount();
-                            Log.d(TAG, "cnt = "+cnt);
-
-                            if (distance < std_distance && cnt == 0){
-                                //현재시간 가져오기
-                                long now = System.currentTimeMillis();
-                                Date mDate = new Date(now);
-                                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                                preTime = simpleDateFormat.format(mDate);
-                                locationDB.execSQL("INSERT INTO "+tablename+"(preTime, Latitude, Longitude) VALUES('"+preTime+"', "+pre_lat+", "+pre_lng+")");
-                                Log.d(TAG, "거리: "+distance+" // 최초저장");
-                                Log.d(TAG, "최초저장 시간 : "+preTime);
-                            } else if (distance > std_distance && distance < 99999 && cnt == 1){
-                                locationDB.execSQL("UPDATE "+tablename+" SET"+" curTime = datetime('now', 'localtime')"+" WHERE curTime is NULL");
-                                Log.d(TAG, "거리: "+distance+" // 위치저장");
-                            } else if((distance > std_distance && cnt == 0) || pre_lat == 0.0){
-                                Log.d(TAG, "거리: "+distance+" // 이동 중..");
-                                preTime = null;
-                                pre_lat = Latitude;
-                                pre_lng = Longitude;
-                            } else{
-                                Log.d(TAG, "거리: "+distance+" // 동선 저장 중..");
-                            }
-
-                            Log.d(TAG, "pre_location: "+pre_lat+" "+pre_lng);
-
-                            // DB 데이터 확인
-                            Cursor cursor3 = locationDB.rawQuery("SELECT * FROM "+tablename, null);
-                            while(cursor3.moveToNext()){
-                                String pretime = cursor3.getString(0);
-                                String curtime = cursor3.getString(1);
-                                double Lat = cursor3.getDouble(2);
-                                double Long = cursor3.getDouble(3);
-                                Log.d(TAG,"저장된 데이터: "+pretime+" "+curtime+" "+Lat+" "+Long);
-                            }
-
-                            Thread.sleep(300000);
-                        } catch (InterruptedException e){
+                    while (true) {
+                        recv_data = networkReader.readLine(); // 데이터 수신
+                        Log.d(TAG, "recv_data: "+recv_data);
+                        if (recv_data == null) {
+                            networKWriter = null;
                             break;
                         }
                     }
+                } catch (IOException e) {
+                    if (sThread == null){
+                        break; // 스레드를 종료해도 while문이 작동하는 현상 해결
+                    } else{
+                        try {
+                            Thread.sleep(300000); // 서버와 연결이 안되면, 주기적으로 서버와 연결을 요청함
+                        } catch (InterruptedException interruptedException) {
+                            interruptedException.printStackTrace();
+                        }
+                    }
                 }
-            };
-            mThread.start();
+            }
         }
-        return START_STICKY;
-    }
+    };
+
+    private Thread mThread = new Thread("My thread") {
+        @Override
+        public void run() {
+            while (true){
+                try{
+
+                    Log.d(TAG, "----------------------------");
+                    Log.d(TAG, "이전 위치: "+pre_lat+" "+pre_lng);
+                    Log.d(TAG, "최근 위치: "+Latitude+" "+Longitude);
+
+                    double distance = 0.0;
+                    distance = getDistance(pre_lat, pre_lng, Latitude, Longitude);
+
+                    // DB 데이터 확인
+                    Cursor cursor = locationDB.rawQuery("SELECT * FROM "+tablename+" WHERE curTime is NULL LIMIT 1", null);
+                    int cnt = cursor.getCount();
+                    Log.d(TAG, "cnt = "+cnt);
+
+                    if (distance < std_distance && cnt == 0){
+                        try{
+                            locationDB.execSQL("UPDATE "+tablename+" SET"+" curTime = null WHERE preTime ='"+preTime+"'");
+                            Log.d(TAG, "Location Improvement..");
+                        } catch (Exception e){
+                            Log.d(TAG,"Error");
+                        }
+                    }
+
+                    // DB 데이터 확인
+                    Cursor cursor2 = locationDB.rawQuery("SELECT * FROM "+tablename+" WHERE curTime is NULL LIMIT 1", null);
+                    cnt = cursor2.getCount();
+                    Log.d(TAG, "cnt = "+cnt);
+
+                    if (distance < std_distance && cnt == 0){
+                        //현재시간 가져오기
+                        long now = System.currentTimeMillis();
+                        Date mDate = new Date(now);
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        preTime = simpleDateFormat.format(mDate);
+                        locationDB.execSQL("INSERT INTO "+tablename+"(preTime, Latitude, Longitude) VALUES('"+preTime+"', "+pre_lat+", "+pre_lng+")");
+                        Log.d(TAG, "거리: "+distance+" // 최초저장");
+                        Log.d(TAG, "최초저장 시간 : "+preTime);
+                    } else if (distance > std_distance && distance < 99999 && cnt == 1){
+                        locationDB.execSQL("UPDATE "+tablename+" SET"+" curTime = datetime('now', 'localtime')"+" WHERE curTime is NULL");
+                        Log.d(TAG, "거리: "+distance+" // 위치저장");
+                    } else if((distance > std_distance && cnt == 0) || pre_lat == 0.0){
+                        Log.d(TAG, "거리: "+distance+" // 이동 중..");
+                        preTime = null;
+                        pre_lat = Latitude;
+                        pre_lng = Longitude;
+                    } else{
+                        Log.d(TAG, "거리: "+distance+" // 동선 저장 중..");
+                    }
+
+                    Log.d(TAG, "pre_location: "+pre_lat+" "+pre_lng);
+
+                    // DB 데이터 확인
+                    Cursor cursor3 = locationDB.rawQuery("SELECT * FROM "+tablename, null);
+                    while(cursor3.moveToNext()){
+                        String pretime = cursor3.getString(0);
+                        String curtime = cursor3.getString(1);
+                        double Lat = cursor3.getDouble(2);
+                        double Long = cursor3.getDouble(3);
+                        Log.d(TAG,"저장된 데이터: "+pretime+" "+curtime+" "+Lat+" "+Long);
+                    }
+
+                    Thread.sleep(60000);
+
+                } catch (InterruptedException e){
+                    break;
+                }
+            }
+        }
+    };
 
     final LocationListener gpsLocationListener = new LocationListener() {
         @Override
@@ -221,7 +264,7 @@ public class MyService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d("TAG", "onDestory");
+        Log.d(TAG, "onDestory");
         Toast.makeText(this, "onDestory!", Toast.LENGTH_SHORT).show();
 
         if (serviceIntent != null){
@@ -231,6 +274,20 @@ public class MyService extends Service {
         if (mThread != null){
             mThread.interrupt();
             mThread = null;
+        }
+
+        if (sThread != null){
+            sThread.interrupt();
+            sThread = null;
+        }
+
+        if (socket != null){
+            try {
+                socket.close();
+                networKWriter = null;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         lm.removeUpdates(gpsLocationListener);
@@ -260,4 +317,9 @@ public class MyService extends Service {
         return null;
     }
 
+    public void setSocket(String ip, int port) throws IOException{
+        socket = new Socket(ip,port);
+        networKWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        networkReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+    }
 }
