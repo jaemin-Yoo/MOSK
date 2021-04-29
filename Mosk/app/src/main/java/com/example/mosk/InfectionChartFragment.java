@@ -102,7 +102,12 @@ public class InfectionChartFragment<Likebutton> extends Fragment{
         fragment_title=viewGroup.findViewById(R.id.fragment1_title);
 
         service_btn=viewGroup.findViewById(R.id.btn_service);
-        service_btn.setLiked(Boolean.FALSE);
+
+        if (MyService.serviceIntent == null){
+            service_btn.setLiked(Boolean.FALSE);
+        } else{
+            service_btn.setLiked(Boolean.TRUE);
+        }
 
         Glide.with(this)
                 .asBitmap()

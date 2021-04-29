@@ -537,7 +537,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
                     if (curtime != null){
                         // 동선 저장 중인 위치는 전송 x
                         PrintWriter out = new PrintWriter(MyService.networKWriter, true);
-                        data = pretime+" "+curtime+" "+Lat+" "+Long;
+                        data = pretime+"/"+curtime+"/"+Lat+"/"+Long;
                         out.println(data);
                         Log.d(TAG,"전송된 데이터: "+data);
                     }

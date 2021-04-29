@@ -101,8 +101,13 @@ public class MyService extends Service {
 
         initializeNotification();
 
-        sThread.start();
-        mThread.start();
+        if (sThread == null){
+            sThread.start();
+        }
+
+        if (mThread == null){
+            mThread.start();
+        }
 
         return START_STICKY;
     }
@@ -118,6 +123,26 @@ public class MyService extends Service {
                     while (true) {
                         recv_data = networkReader.readLine(); // 데이터 수신
                         Log.d(TAG, "recv_data: "+recv_data);
+                        String datalist[] = recv_data.split("/");
+                        double infLat = Double.parseDouble(datalist[2]);
+                        double infLong = Double.parseDouble(datalist[3]);
+
+                        Cursor cursor = locationDB.rawQuery("SELECT * FROM "+tablename+" WHERE preTime<='"+datalist[1]+"' AND curTime>='"+datalist[0]+"'", null);
+                        while(cursor.moveToNext()){
+                            String pretime = cursor.getString(0);
+                            String curtime = cursor.getString(1);
+                            double myLat = cursor.getDouble(2);
+                            double myLong = cursor.getDouble(3);
+
+                            double distance = 0.0;
+                            distance = getDistance(infLat, infLong, myLat, myLong);
+
+                            if (distance<std_distance){
+                                warningNotification();
+                                Log.d(TAG, "동선 겹침");
+                                break;
+                            }
+                        }
                         if (recv_data == null) {
                             networKWriter = null;
                             break;
@@ -267,6 +292,26 @@ public class MyService extends Service {
         }
         Notification notification = builder.build();
         startForeground(1, notification);
+    }
+
+    public void warningNotification(){
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "2");
+        builder.setSmallIcon(R.drawable.app_icon_small);
+        builder.setContentText("확진자와 동선이 겹쳤습니다.");
+        builder.setContentTitle("경고");
+        builder.setAutoCancel(true);
+        builder.setVibrate(new long[]{1000,1000});
+        builder.setWhen(0);
+        builder.setShowWhen(true);
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+        builder.setContentIntent(pendingIntent);
+        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            manager.createNotificationChannel(new NotificationChannel("2", "warning", NotificationManager.IMPORTANCE_NONE));
+        }
+        Notification notification = builder.build();
+        manager.notify(1,notification);
     }
 
     @Override
