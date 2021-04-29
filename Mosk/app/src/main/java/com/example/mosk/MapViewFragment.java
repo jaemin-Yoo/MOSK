@@ -48,6 +48,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,8 +57,11 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
     ViewGroup viewGroup;
     Context mContext;
 
+    //Socket
+    private String data = "";
+
     /*fab 설정*/
-    private FloatingActionButton fab_more,fab_home,fab_save,fab_cancel;
+    private FloatingActionButton fab_more,fab_home,fab_send,fab_cal;
     private Animation fab_open, fab_close;
     private boolean isFabOpen=false;
     private ClickListener listener = new ClickListener();
@@ -102,11 +106,6 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
     private final String tablename = "location";
     private final String tablehome = "place";
 
-    //Button
-    private Button start, stop, delete;
-
-    private Intent serviceIntent;
-
     public void onAttach(Context context){
         super.onAttach(context);
         mContext=context;
@@ -120,49 +119,6 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         viewGroup= (ViewGroup) inflater.inflate(R.layout.mapview_fragment,container,false); //xml과 연결
-
-
-        start = viewGroup.findViewById(R.id.start_service);
-        start.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG,"start!");
-                if (MyService.serviceIntent==null){
-                    serviceIntent = new Intent(getActivity(), MyService.class);
-                    getActivity().startService(serviceIntent);
-                    Toast.makeText(getContext(), "Start", Toast.LENGTH_SHORT).show();
-                } else{
-                    serviceIntent = MyService.serviceIntent;
-                    Toast.makeText(getContext(), "already..", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        stop = viewGroup.findViewById(R.id.stop_service);
-        stop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG,"stop!");
-                if (MyService.serviceIntent!=null){
-                    serviceIntent = MyService.serviceIntent;
-                    MyService.serviceIntent = null;
-                    getActivity().stopService(serviceIntent);
-                    Toast.makeText(getContext(), "Stop", Toast.LENGTH_SHORT).show();
-                } else{
-                    Toast.makeText(getContext(), "No service..", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        delete = viewGroup.findViewById(R.id.btn_delete);
-        delete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "delete..");
-                locationDB.execSQL("DELETE FROM "+tablename); // 추후 삭제해야되는 코드
-                Toast.makeText(mContext, "모든 위치 삭제", Toast.LENGTH_SHORT).show();
-            }
-        });
 
         locationDB = getActivity().openOrCreateDatabase(dbname, getActivity().MODE_PRIVATE, null);
 
@@ -527,17 +483,20 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
     public void setFab(){
         fab_more=viewGroup.findViewById(R.id.fab_more);
         fab_home=viewGroup.findViewById(R.id.fab_home);
-        fab_save=viewGroup.findViewById(R.id.fab_save);
+        fab_send=viewGroup.findViewById(R.id.fab_send);
+        fab_cal=viewGroup.findViewById(R.id.fab_cal);
 
         Glide.with(this).load("https://i.imgur.com/n76lRoV.png").into(fab_home);
-        Glide.with(this).load("https://i.imgur.com/qteERBt.png").into(fab_save);
+        Glide.with(this).load("https://i.imgur.com/M5ywSIa.png").into(fab_send);
+        Glide.with(this).load("https://i.imgur.com/NUCaHI0.png").into(fab_cal);
 
         fab_open = AnimationUtils.loadAnimation(mContext, R.anim.fab_open);
         fab_close= AnimationUtils.loadAnimation(mContext, R.anim.fab_close);
 
         fab_more.setOnClickListener(listener);
         fab_home.setOnClickListener(listener);
-        fab_save.setOnClickListener(listener);
+        fab_send.setOnClickListener(listener);
+        fab_cal.setOnClickListener(listener);
     }
 
     /*클릭리스너 클래스*/
@@ -547,62 +506,90 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
             switch(v.getId()){
                 case R.id.fab_more:
                     toggleFab();
-                    Toast.makeText(mContext,"더보기를 클릭",Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.fab_home:
-                    toggleFab();
-                    Toast.makeText(mContext,"자주 가는 장소",Toast.LENGTH_SHORT).show();
                     dialog_home();
-                    break;
-                case R.id.fab_save:
                     toggleFab();
-                    Toast.makeText(mContext,"저장 수정",Toast.LENGTH_SHORT).show();
                     break;
+                case R.id.fab_send:
+                    toggleFab();
+                    dialog_alert_sending();
+                    break;
+                case R.id.fab_cal:
+                    Toast.makeText(mContext,"캘린더로 보기",Toast.LENGTH_SHORT).show();
+                    toggleFab();
                 default:
                     break;
             }
         }
     }
 
+    private void SendingService(){
+        if (MyService.serviceIntent!=null){
+            if (MyService.networKWriter!=null){
+                Cursor cursor = locationDB.rawQuery("SELECT * FROM "+tablename, null);
+                while(cursor.moveToNext()){
+                    String pretime = cursor.getString(0);
+                    String curtime = cursor.getString(1);
+                    double Lat = cursor.getDouble(2);
+                    double Long = cursor.getDouble(3);
+
+                    if (curtime != null){
+                        // 동선 저장 중인 위치는 전송 x
+                        PrintWriter out = new PrintWriter(MyService.networKWriter, true);
+                        data = pretime+" "+curtime+" "+Lat+" "+Long;
+                        out.println(data);
+                        Log.d(TAG,"전송된 데이터: "+data);
+                    }
+                }
+
+                if (data==""){
+                    Toast.makeText(getContext(), "전송 할 데이터가 없습니다.", Toast.LENGTH_SHORT).show();
+                } else{
+                    Toast.makeText(getContext(), "데이터를 전송하였습니다.", Toast.LENGTH_SHORT).show();
+                }
+            } else{
+                Toast.makeText(getContext(), "서버 상태를 확인하세요.", Toast.LENGTH_SHORT).show();
+            }
+        }
+        else{
+            Toast.makeText(getContext(), "백그라운드 서비스를 먼저 시작해주세요.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void dialog_alert_sending(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        builder.setTitle("위치 데이터 전송");
+        builder.setMessage("위치 데이터를 서버에 전송하시겠습니까?");
+        builder.setPositiveButton("예",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        SendingService();
+                    }
+                });
+        builder.setNegativeButton("아니오",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(mContext,"아니오를 선택했습니다.",Toast.LENGTH_LONG).show();
+                    }
+                });
+        builder.show();
+    }
+
     private void dialog_home(){
-        final List<String> PlaceList = new ArrayList<>();
-        PlaceList.add("집");
-        PlaceList.add("회사");
-        PlaceList.add("학교");
-        PlaceList.add("숙소");
-        PlaceList.add("기타");
-
-        final CharSequence[] items =  PlaceList.toArray(new String[ PlaceList.size()]);
-
-        final List SelectedItems  = new ArrayList();
-        int defaultItem = 0;
-        SelectedItems.add(defaultItem);
+        final EditText edittext = new EditText(mContext);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this.mContext);
         builder.setTitle("자주 가는 장소 설정");
-        builder.setSingleChoiceItems(items, defaultItem,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        SelectedItems.clear();
-                        SelectedItems.add(which);
-                    }
-                });
-        builder.setPositiveButton("Ok",
+        builder.setMessage("해당 장소의 이름을 입력하세요.");
+        builder.setView(edittext);
+        builder.setPositiveButton("입력",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        String msg="";
-
-                        if (!SelectedItems.isEmpty()) {
-                            int index = (int) SelectedItems.get(0);
-                            msg = PlaceList.get(index);
-                        }
-                        Toast.makeText(mContext,
-                                "Items Selected.\n"+ msg , Toast.LENGTH_LONG)
-                                .show();
+                        Toast.makeText(mContext,edittext.getText().toString() ,Toast.LENGTH_LONG).show();
                     }
                 });
-        builder.setNegativeButton("Cancel",
+        builder.setNegativeButton("취소",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -615,22 +602,27 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
         Log.d(TAG, String.valueOf(isFabOpen));
         if(isFabOpen){
             fab_home.startAnimation(fab_close);
-            fab_save.startAnimation(fab_close);
+            fab_send.startAnimation(fab_close);
+            fab_cal.startAnimation(fab_close);
+
             fab_home.setClickable(false);
-            fab_save.setClickable(false);
+            fab_send.setClickable(false);
+            fab_cal.setClickable(false);
 
             fab_more.setImageResource(R.drawable.ic_add);
         }else{
             fab_home.startAnimation(fab_open);
-            fab_save.startAnimation(fab_open);
+            fab_send.startAnimation(fab_open);
+            fab_cal.startAnimation(fab_open);
+
             fab_home.setClickable(true);
-            fab_save.setClickable(true);
+            fab_send.setClickable(true);
+            fab_cal.setClickable(true);
+
             fab_more.setImageResource(R.drawable.ic_close);
         }
         isFabOpen=!isFabOpen;
     }
-
-
 
 }
 

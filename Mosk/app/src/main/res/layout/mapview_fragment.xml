@@ -15,33 +15,21 @@
         tools:context=".MapsActivity"
         android:name="com.google.android.gms.maps.SupportMapFragment" />
 
-    <LinearLayout
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_cal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_gravity="bottom">
-
-        <Button
-            android:id="@+id/start_service"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="서비스 시작"/>
-
-        <Button
-            android:id="@+id/stop_service"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="서비스 중지"/>
-        <Button
-            android:id="@+id/btn_delete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="위치 삭제"/>
-
-    </LinearLayout>
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="230dp"
+        android:layout_marginRight="15sp"
+        android:visibility="invisible"
+        app:elevation="6dp"
+        app:maxImageSize="40dp"
+        app:pressedTranslationZ="12dp"
+        app:backgroundTint="@color/gray3"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_save"
+        android:id="@+id/fab_send"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
@@ -49,6 +37,7 @@
         android:layout_marginRight="15sp"
         android:visibility="invisible"
         app:elevation="6dp"
+        app:maxImageSize="36dp"
         app:pressedTranslationZ="12dp"
         app:backgroundTint="@color/gray3"/>
 

@@ -23,7 +23,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/fragment1_title">
 
-
         <com.github.mikephil.charting.charts.PieChart
             android:id="@+id/pieChart"
             android:layout_width="430dp"
@@ -33,20 +32,18 @@
         </com.github.mikephil.charting.charts.PieChart>
 
         <com.like.LikeButton
-            android:id="@+id/mask_btn"
+            android:id="@+id/btn_service"
             app:icon_type="Heart"
-            app:icon_size="38dp"
+            app:icon_size="107dp"
             android:layout_height="150dp"
             android:layout_width="150dp"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="120dp"
-            app:like_drawable="@drawable/icon_mask_liked"
-            app:unlike_drawable="@drawable/icon_mask_unliked"
             app:circle_end_color="@color/yellow1"
-            app:circle_start_color="@color/mint1"
-            app:dots_primary_color="@color/red2"
-            app:dots_secondary_color="@color/red1"
-            app:anim_scale_factor="10"
+            app:circle_start_color="@color/blue2"
+            app:dots_primary_color="@color/blue3"
+            app:dots_secondary_color="@color/yellow2"
+            app:anim_scale_factor="18"
             />
 
     </FrameLayout>

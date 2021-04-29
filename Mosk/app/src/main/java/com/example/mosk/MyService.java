@@ -12,6 +12,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -25,6 +28,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -238,8 +245,9 @@ public class MyService extends Service {
     }
 
     public void initializeNotification(){
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "1");
-        builder.setSmallIcon(R.drawable.icon_mask_liked);
+        final NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "1");
+        builder.setSmallIcon(R.drawable.app_icon_small);
+
         NotificationCompat.BigTextStyle style = new NotificationCompat.BigTextStyle();
         style.bigText("설정을 보려면 누르세요.");
         style.setBigContentTitle(null);

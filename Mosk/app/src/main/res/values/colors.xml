@@ -10,6 +10,8 @@
 
     <color name="blue1">#A6E3E9</color>
     <color name="blue2">#CBF1F5</color>
+    <color name="blue3">#18A8F1</color>
+
     <color name="dark1">#222831</color>
     <color name="dark2">#393E46</color>
 
@@ -21,5 +23,6 @@
     <color name="red2">#e97878</color>
 
     <color name="yellow1">#ffee93</color>
+    <color name="yellow2">#FFF083</color>
     <color name="brown1">#663f3f</color>
 </resources>

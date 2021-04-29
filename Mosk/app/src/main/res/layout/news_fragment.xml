@@ -1,43 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-    <LinearLayout android:orientation="vertical" android:layout_height="match_parent" android:layout_width="match_parent" xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <TextView android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:text="지역 검색"
-        android:id="@+id/textView1"
-        android:layout_marginRight="8dp"
-        android:textSize="16sp"
-        android:layout_marginTop="118dp"/>
-
+<LinearLayout android:orientation="vertical"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <RelativeLayout
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content">
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
-        <EditText android:layout_height="wrap_content"
-            android:layout_width="330dp"
-            android:id="@+id/editTextFilter"
-            android:singleLine="true"/>
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="320dp"
+            android:layout_height="42dp"
+            android:layout_marginLeft="14dp"
+            android:layout_marginTop="130dp" />
 
-        <Button android:layout_height="wrap_content"
+        <Button
+            android:id="@+id/search_button"
             android:layout_width="wrap_content"
-            android:text="검색"
-            android:id="@+id/search_btn"
-            android:layout_toRightOf="@id/editTextFilter">
+            android:layout_height="42dp"
+            android:layout_toRightOf="@+id/spinner"
+            android:layout_marginTop="130dp"
+            android:text="검색">
+
         </Button>
 
-    </RelativeLayout>
 
-    <RelativeLayout android:layout_height="wrap_content"
-        android:layout_width="wrap_content">
     </RelativeLayout>
-
 
     <RadioGroup
         android:orientation="horizontal"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="14dp"
         android:id="@+id/radioGroup">
 
         <RadioButton
@@ -56,18 +52,195 @@
 
     </RadioGroup>
 
+    <TextView
+        android:layout_marginTop="14dp"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:gravity="center"
+        android:textSize="30sp"
+        android:background="@color/mint2"
+        android:textColor="#FFFFFF"
+        android:layout_gravity="center"
+        android:fontFamily="@font/app_default"
+        android:text="확진자 현황" />
 
-     <RelativeLayout android:layout_height="wrap_content" android:layout_width="wrap_content">
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:stretchColumns="*"
+        android:background="@color/gray2"
+        android:padding="2dp"
+        >
 
-        <ListView android:layout_height="match_parent" android:layout_width="170dp" android:id="@+id/category_list" android:textFilterEnabled="true"/>
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#ffffff">
 
-        <androidx.recyclerview.widget.RecyclerView android:layout_height="match_parent"
-            android:layout_width="280dp"
-            android:id="@+id/recycler_View"
-            android:layout_toRightOf="@+id/category_list"
-            android:scrollbars="vertical"
-            android:layout_toEndOf="@+id/category_list"/>
+            <TextView
 
-    </RelativeLayout>
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:textColor="#000000"
+                android:gravity="center"
+                android:layout_margin="1dp"
+                android:text="총 확진자 수"
+
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:textColor="#000000"
+                android:gravity="center"
+                android:layout_margin="1dp"
+                android:text="일일 확진자 수" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:textColor="#000000"
+                android:gravity="center"
+                android:layout_margin="1dp"
+                android:text="거리두기 단계" />
+
+        </TableRow>
+        <TableRow
+            android:background="#ffffff"
+            android:layout_height="37dp"
+            >
+            <TextView
+                android:id="@+id/txtT1V1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="23sp"
+                android:textColor="#000000"
+                android:gravity="center"
+                android:layout_margin="1dp"
+                android:text="확진자 수" />
+
+            <TextView
+                android:id="@+id/txtT1V2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="23sp"
+                android:textColor="#000000"
+                android:gravity="center"
+                android:layout_margin="1dp"
+                android:text="일일 확진자 수" />
+
+            <TextView
+                android:id="@+id/txtT1V3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#000000"
+                android:gravity="center"
+                android:layout_margin="1dp"
+                android:textSize="23sp"
+                android:text="거리두기 단계"/>
+        </TableRow>
+    </TableLayout>
+
+    <TextView
+        android:layout_marginTop="14dp"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:gravity="center"
+        android:textSize="30sp"
+        android:background="@color/mint2"
+        android:textColor="#FFFFFF"
+        android:layout_gravity="center"
+        android:fontFamily="@font/app_default"
+        android:text="코로나 19 의료기관" />
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:stretchColumns="*"
+        android:background="@color/gray2"
+        android:padding="2dp"
+        >
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#ffffff">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:textColor="#000000"
+                android:gravity="center"
+                android:layout_margin="1dp"
+                android:text="전화번호"
+                />
+
+        </TableRow>
+        <TableRow
+            android:background="#ffffff"
+            android:layout_height="37dp"
+            >
+            <TextView
+                android:id="@+id/txtT2V1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="23sp"
+                android:textColor="#000000"
+                android:gravity="center"
+                android:layout_margin="1dp"
+                android:text="의료기관-전화번호"
+                />
+        </TableRow>
+    </TableLayout>
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:stretchColumns="*"
+        android:background="@color/gray2"
+        android:padding="2dp"
+        >
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#ffffff">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:textColor="#000000"
+                android:gravity="center"
+                android:layout_margin="1dp"
+                android:text="주소"
+                />
+
+        </TableRow>
+        <TableRow
+            android:background="#ffffff"
+            android:layout_height="37dp"
+            >
+            <TextView
+                android:id="@+id/txtT2V2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="23sp"
+                android:textColor="#000000"
+                android:gravity="center"
+                android:layout_margin="1dp"
+                android:text="의료기관-주소"
+                />
+        </TableRow>
+    </TableLayout>
+
+
 
 </LinearLayout>

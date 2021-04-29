@@ -1,9 +1,12 @@
 package com.example.mosk;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -16,8 +19,10 @@ import android.view.ViewGroup;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -36,8 +41,14 @@ import com.github.mikephil.charting.utils.ColorTemplate;
 import com.like.LikeButton;
 import com.like.OnLikeListener;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -50,7 +61,8 @@ public class InfectionChartFragment<Likebutton> extends Fragment{
     TextView fragment_title;
 
     //Button
-    LikeButton mask_btn;
+    LikeButton service_btn;
+    private Intent serviceIntent;
 
     ClickListener clickListener=new ClickListener();
 
@@ -88,49 +100,68 @@ public class InfectionChartFragment<Likebutton> extends Fragment{
 
         chart=viewGroup.findViewById(R.id.pieChart);
         fragment_title=viewGroup.findViewById(R.id.fragment1_title);
-        mask_btn= viewGroup.findViewById(R.id.mask_btn);
-        mask_btn.setOnLikeListener(new OnLikeListener() {
+
+        service_btn=viewGroup.findViewById(R.id.btn_service);
+        service_btn.setLiked(Boolean.FALSE);
+
+        Glide.with(this)
+                .asBitmap()
+                .load("https://i.imgur.com/GuA9qCP.png")
+                .into(new CustomTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        service_btn.setUnlikeDrawable(new BitmapDrawable(getResources(),resource));
+                    }
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+                    }
+                });
+
+        Glide.with(this)
+                .asBitmap()
+                .load("https://i.imgur.com/NFyR4Rl.png")
+                .into(new CustomTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        service_btn.setLikeDrawable(new BitmapDrawable(getResources(),resource));
+                    }
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+                    }
+                });
+
+        service_btn.setOnLikeListener(new OnLikeListener() {
             @Override
             public void liked(LikeButton likeButton) {
-                if (MyService.serviceIntent!=null){
-                    if (MyService.networKWriter!=null){
-                        Cursor cursor = locationDB.rawQuery("SELECT * FROM "+tablename, null);
-                        while(cursor.moveToNext()){
-                            String pretime = cursor.getString(0);
-                            String curtime = cursor.getString(1);
-                            double Lat = cursor.getDouble(2);
-                            double Long = cursor.getDouble(3);
-
-                            if (curtime != null){
-                                // 동선 저장 중인 위치는 전송 x
-                                PrintWriter out = new PrintWriter(MyService.networKWriter, true);
-                                data = pretime+" "+curtime+" "+Lat+" "+Long;
-                                out.println(data);
-                                Log.d(TAG,"전송된 데이터: "+data);
-                            }
-                        }
-
-                        if (data==""){
-                            Toast.makeText(getContext(), "전송 할 데이터가 없습니다.", Toast.LENGTH_SHORT).show();
-                        } else{
-                            Toast.makeText(getContext(), "데이터를 전송하였습니다.", Toast.LENGTH_SHORT).show();
-                        }
-                    } else{
-                        Toast.makeText(getContext(), "서버 상태를 확인하세요.", Toast.LENGTH_SHORT).show();
-                    }
+                Log.d(TAG,"LIKED");
+                Log.d(TAG,"start!");
+                if (MyService.serviceIntent==null){
+                    serviceIntent = new Intent(getActivity(), MyService.class);
+                    getActivity().startService(serviceIntent);
+                    Toast.makeText(getContext(), "Start", Toast.LENGTH_SHORT).show();
                 } else{
-                    Toast.makeText(getContext(), "백그라운드를 실행 해 주세요.", Toast.LENGTH_SHORT).show();
+                    serviceIntent = MyService.serviceIntent;
+                    Toast.makeText(getContext(), "already..", Toast.LENGTH_SHORT).show();
                 }
-                //Toast.makeText(mContext,"마스크 버튼을 클릭하셨습니다.",Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void unLiked(LikeButton likeButton) {
-                Toast.makeText(mContext,"마스크 버튼을 클릭 취소 하셨습니다.",Toast.LENGTH_SHORT).show();
+                Log.d(TAG,"UNLIKED");
+                Log.d(TAG,"stop!");
+                if (MyService.serviceIntent!=null){
+                    serviceIntent = MyService.serviceIntent;
+                    MyService.serviceIntent = null;
+                    getActivity().stopService(serviceIntent);
+                    Toast.makeText(getContext(), "Stop", Toast.LENGTH_SHORT).show();
+                } else{
+                    Toast.makeText(getContext(), "No service..", Toast.LENGTH_SHORT).show();
+                }
             }
-        });
-        setChart(chart);
+        }
 
+        );
+        setChart(chart);
 
         return viewGroup;
     }
@@ -198,7 +229,6 @@ public class InfectionChartFragment<Likebutton> extends Fragment{
         chart.invalidate();
         chart.animateXY(1400,1400);
     }
-
 
     /*클릭리스너 클래스*/
     private class ClickListener implements View.OnClickListener{
