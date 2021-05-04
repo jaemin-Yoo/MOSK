@@ -70,6 +70,9 @@ public class MyService extends Service {
     private String ip = "220.122.46.204";
     private int port = 8001;
 
+    //State
+    public static Boolean infstate = false;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -93,6 +96,9 @@ public class MyService extends Service {
             lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, 0, gpsLocationListener); //Location Update
             lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60000, 0, gpsLocationListener);
         }
+
+        sThread.start();
+        mThread.start();
     }
 
     @Override
@@ -100,14 +106,6 @@ public class MyService extends Service {
         serviceIntent = intent;
 
         initializeNotification();
-
-        if (sThread == null){
-            sThread.start();
-        }
-
-        if (mThread == null){
-            mThread.start();
-        }
 
         return START_STICKY;
     }
@@ -139,6 +137,7 @@ public class MyService extends Service {
 
                             if (distance<std_distance){
                                 warningNotification();
+                                infstate = true;
                                 Log.d(TAG, "동선 겹침");
                                 break;
                             }
@@ -153,7 +152,7 @@ public class MyService extends Service {
                         break; // 스레드를 종료해도 while문이 작동하는 현상 해결
                     } else{
                         try {
-                            Thread.sleep(300000); // 서버와 연결이 안되면, 주기적으로 서버와 연결을 요청함
+                            sleep(300000); // 서버와 연결이 안되면, 주기적으로 서버와 연결을 요청함
                         } catch (InterruptedException interruptedException) {
                             interruptedException.printStackTrace();
                         }
@@ -228,7 +227,7 @@ public class MyService extends Service {
                         Log.d(TAG,"저장된 데이터: "+pretime+" "+curtime+" "+Lat+" "+Long);
                     }
 
-                    Thread.sleep(60000);
+                    sleep(300000);
 
                 } catch (InterruptedException e){
                     break;
@@ -283,7 +282,7 @@ public class MyService extends Service {
         builder.setStyle(style);
         builder.setWhen(0);
         builder.setShowWhen(false);
-        Intent notificationIntent = new Intent(this, MainActivity.class);
+        Intent notificationIntent = new Intent(this, MapViewFragment.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
         builder.setContentIntent(pendingIntent);
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -296,7 +295,7 @@ public class MyService extends Service {
 
     public void warningNotification(){
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "2");
-        builder.setSmallIcon(R.drawable.app_icon_small);
+        builder.setSmallIcon(R.drawable.warning);
         builder.setContentText("확진자와 동선이 겹쳤습니다.");
         builder.setContentTitle("경고");
         builder.setAutoCancel(true);
@@ -311,7 +310,7 @@ public class MyService extends Service {
             manager.createNotificationChannel(new NotificationChannel("2", "warning", NotificationManager.IMPORTANCE_NONE));
         }
         Notification notification = builder.build();
-        manager.notify(1,notification);
+        manager.notify(2,notification);
     }
 
     @Override
