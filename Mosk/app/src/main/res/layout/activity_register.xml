@@ -248,22 +248,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
 
-                <Button
-                    android:id="@+id/btn_back"
-                    android:layout_width="150dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="20dp"
-                    android:background="@drawable/back_btn"
-                    android:textSize="18sp"
-                    android:text="돌아가기"
-                    android:textColor="@color/red1"
-                    android:fontFamily="@font/app_default"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="10dp"/>
 
                 <Button
                     android:id="@+id/btn_register"
-                    android:layout_width="150dp"
+                    android:layout_width="fill_parent"
                     android:layout_height="50dp"
                     android:layout_marginTop="20dip"
                     android:background="@drawable/register_btn"
@@ -272,7 +260,7 @@
                     android:textColor="@color/mint2"
                     android:fontFamily="@font/app_default"
                     android:layout_marginRight="16dp"
-                    android:layout_toRightOf="@id/btn_back"/>
+                    />
 
             </RelativeLayout>
 

@@ -13,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
@@ -73,6 +74,11 @@ public class MyService extends Service {
     //State
     public static Boolean infstate = false;
 
+    //Notification
+    private static final String PRIMARY_CHANNEL_ID = "primary_notification_channel";
+    private NotificationManager mNotificationManager;
+    private static final int NOTIFICATION_ID = 0;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -96,6 +102,8 @@ public class MyService extends Service {
             lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, 0, gpsLocationListener); //Location Update
             lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60000, 0, gpsLocationListener);
         }
+
+        createNotificationChannel();
 
         sThread.start();
         mThread.start();
@@ -286,15 +294,62 @@ public class MyService extends Service {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
         builder.setContentIntent(pendingIntent);
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        Log.d(TAG, "I1");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Log.d(TAG, "I2");
             manager.createNotificationChannel(new NotificationChannel("1", "undead_service", NotificationManager.IMPORTANCE_NONE));
         }
         Notification notification = builder.build();
         startForeground(1, notification);
     }
 
-    public void warningNotification(){
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "2");
+//    public void warningNotification(){
+//        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "2");
+//        builder.setSmallIcon(R.drawable.warning);
+//        builder.setContentText("확진자와 동선이 겹쳤습니다.");
+//        builder.setContentTitle("경고");
+//        builder.setAutoCancel(true);
+//        builder.setVibrate(new long[]{1000,1000});
+//        builder.setWhen(0);
+//        builder.setShowWhen(true);
+//        Intent notificationIntent = new Intent(this, MainActivity.class);
+//        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+//        builder.setContentIntent(pendingIntent);
+//        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+//        Log.d(TAG, "W1");
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            Log.d(TAG, "W2");
+//            manager.createNotificationChannel(new NotificationChannel("2", "warning", NotificationManager.IMPORTANCE_NONE));
+//        }
+//        Notification notification = builder.build();
+//        startForeground(2,notification);
+//    }
+
+    public void createNotificationChannel()
+    {
+        //notification manager 생성
+        mNotificationManager = (NotificationManager)
+                getSystemService(NOTIFICATION_SERVICE);
+        // 기기(device)의 SDK 버전 확인 ( SDK 26 버전 이상인지 - VERSION_CODES.O = 26)
+        if(android.os.Build.VERSION.SDK_INT
+                >= android.os.Build.VERSION_CODES.O){
+            //Channel 정의 생성자( construct 이용 )
+            NotificationChannel notificationChannel = new NotificationChannel(PRIMARY_CHANNEL_ID
+                    ,"Test Notification",mNotificationManager.IMPORTANCE_HIGH);
+            //Channel에 대한 기본 설정
+            notificationChannel.enableLights(true);
+            notificationChannel.setLightColor(Color.RED);
+            notificationChannel.enableVibration(true);
+            notificationChannel.setDescription("Notification from Mascot");
+            // Manager을 이용하여 Channel 생성
+            mNotificationManager.createNotificationChannel(notificationChannel);
+        }
+
+    }
+
+    // Notification Builder를 만드는 메소드
+    private NotificationCompat.Builder getNotificationBuilder() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, PRIMARY_CHANNEL_ID);
         builder.setSmallIcon(R.drawable.warning);
         builder.setContentText("확진자와 동선이 겹쳤습니다.");
         builder.setContentTitle("경고");
@@ -305,12 +360,15 @@ public class MyService extends Service {
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
         builder.setContentIntent(pendingIntent);
-        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            manager.createNotificationChannel(new NotificationChannel("2", "warning", NotificationManager.IMPORTANCE_NONE));
-        }
-        Notification notification = builder.build();
-        manager.notify(2,notification);
+        return builder;
+    }
+
+    // Notification을 보내는 메소드
+    public void warningNotification(){
+        // Builder 생성
+        NotificationCompat.Builder notifyBuilder = getNotificationBuilder();
+        // Manager를 통해 notification 디바이스로 전달
+        mNotificationManager.notify(NOTIFICATION_ID,notifyBuilder.build());
     }
 
     @Override

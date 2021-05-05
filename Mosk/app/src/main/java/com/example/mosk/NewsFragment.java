@@ -104,7 +104,6 @@ public class NewsFragment extends Fragment {
             switch(view.getId()){
                 case R.id.rg_korea:
                     country_mode=0;
-                    //Mod_listData();
                     Log.d(TAG,"국내 선택");
                     city_names=getResources().getStringArray(R.array.korea_city); //디폴트 국내
                     stringArrayAdapter= new ArrayAdapter<String>(mContext, R.layout.support_simple_spinner_dropdown_item, city_names);
@@ -113,7 +112,6 @@ public class NewsFragment extends Fragment {
                     break;
                 case R.id.rg_abroad:
                     country_mode=1;
-                    //Mod_listData();
                     city_names=getResources().getStringArray(R.array.abroad_city); //디폴트 국내
                     stringArrayAdapter= new ArrayAdapter<String>(mContext, R.layout.support_simple_spinner_dropdown_item, city_names);
                     stringArrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);

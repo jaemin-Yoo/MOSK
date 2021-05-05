@@ -47,10 +47,8 @@ public class RegisterActivity extends AppCompatActivity {
         RG_Infected=findViewById(R.id.radioGroup);
 
         BtnBack=findViewById(R.id.imageButton);
-        Btn_BACK=findViewById(R.id.btn_back);
         Btn_REGISTER=findViewById(R.id.btn_register);
 
-        Btn_BACK.setOnClickListener(listener);
         Btn_REGISTER.setOnClickListener(listener);
         BtnBack.setOnClickListener(listener);
 
@@ -67,11 +65,9 @@ public class RegisterActivity extends AppCompatActivity {
                 case R.id.btn_register:
                     Log.d(TAG,"회원가입");
                     ClickRegister();
-
-                case R.id.btn_back:
-                    Intent intent=new Intent(RegisterActivity.this,LoginActivity.class);
-                    startActivity(intent);
-
+                    Intent MainIntent=new Intent(RegisterActivity.this,MainActivity.class);
+                    startActivity(MainIntent);
+                    finish();
                 case R.id.imageButton:
                     finish();
                 default:
@@ -99,10 +95,13 @@ public class RegisterActivity extends AppCompatActivity {
                 try {
                     // TODO : 인코딩 문제때문에 한글 DB인 경우 로그인 불가
                     JSONObject register_jsonObject= new JSONObject(response);
-                    boolean success = register_jsonObject.getBoolean("success");
-                    if (success) { // 로그인에 성공한 경우
+                    int success = register_jsonObject.getInt("success");
+                    success=0;
+                    if (success==1) { // 로그인에 성공한 경우
 
                         Toast.makeText(getApplicationContext(), "회원가입에 성공하셨습니다.", Toast.LENGTH_SHORT).show();
+
+
 
                     } else { // 로그인에 실패한 경우
                         Toast.makeText(getApplicationContext(), "회원가입에 실패하였습니다.", Toast.LENGTH_SHORT).show();
