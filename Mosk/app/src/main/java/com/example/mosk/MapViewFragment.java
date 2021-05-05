@@ -533,17 +533,22 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
             if (MyService.networKWriter!=null){
                 Cursor cursor = locationDB.rawQuery("SELECT * FROM "+tablename, null);
                 while(cursor.moveToNext()){
-                    String pretime = cursor.getString(0);
-                    String curtime = cursor.getString(1);
-                    double Lat = cursor.getDouble(2);
-                    double Long = cursor.getDouble(3);
+                    final String pretime = cursor.getString(0);
+                    final String curtime = cursor.getString(1);
+                    final double Lat = cursor.getDouble(2);
+                    final double Long = cursor.getDouble(3);
 
                     if (curtime != null){
-                        // 동선 저장 중인 위치는 전송 x
-                        PrintWriter out = new PrintWriter(MyService.networKWriter, true);
-                        data = pretime+"/"+curtime+"/"+Lat+"/"+Long;
-                        out.println(data);
-                        Log.d(TAG,"전송된 데이터: "+data);
+                        data = "Data exist";
+                        new Thread(){
+                            public void run(){
+                                // 동선 저장 중인 위치는 전송 x
+                                PrintWriter out = new PrintWriter(MyService.networKWriter, true);
+                                data = pretime+"/"+curtime+"/"+Lat+"/"+Long;
+                                out.println(data);
+                                Log.d(TAG,"전송된 데이터: "+data);
+                            }
+                        }.start();
                     }
                 }
 
