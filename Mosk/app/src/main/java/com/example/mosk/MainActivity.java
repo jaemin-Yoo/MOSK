@@ -4,8 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.Gravity;
@@ -138,4 +136,25 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.login_menu) {
+            Toast.makeText(this,"클릭",Toast.LENGTH_SHORT).show();
+            Intent intent=new Intent(this,LoginActivity.class);
+            startActivity(intent);//액티비티
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void turn(){
+
+    }
 }
