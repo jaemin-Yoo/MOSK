@@ -210,9 +210,15 @@ public class InfectionChartFragment<Likebutton> extends Fragment{
         ArrayList<PieEntry> entries=new ArrayList<>();
 
         if (MyService.infstate == true){
+            // 동선이 겹칠 때,
             entries.add(new PieEntry(80,"감염 위험률"));  // 감염되는 값을 여기에 저장
             entries.add(new PieEntry(20,"감염 안전율"));
+        } else if (MapViewFragment.nonot == true){
+            // 자신이 감염 되었을 때,
+            entries.add(new PieEntry(100,"감염 위험률"));  // 감염되는 값을 여기에 저장
+            entries.add(new PieEntry(0,"감염 안전율"));
         } else{
+            // 평상 시
             entries.add(new PieEntry(0,"감염 위험률"));  // 감염되는 값을 여기에 저장
             entries.add(new PieEntry(100,"감염 안전율"));
         }

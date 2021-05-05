@@ -106,6 +106,9 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
     private final String tablename = "location";
     private final String tablehome = "place";
 
+    //Notification state
+    public static Boolean nonot = false;
+
     public void onAttach(Context context){
         super.onAttach(context);
         mContext=context;
@@ -516,6 +519,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
                     dialog_alert_sending();
                     break;
                 case R.id.fab_cal:
+                    locationDB.execSQL("INSERT INTO "+tablename+" VALUES('2021-05-05 18:03:08','2021-05-05 21:12:32','35.83072','128.7543047')");
                     Toast.makeText(mContext,"캘린더로 보기",Toast.LENGTH_SHORT).show();
                     toggleFab();
                 default:
@@ -546,6 +550,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
                 if (data==""){
                     Toast.makeText(getContext(), "전송 할 데이터가 없습니다.", Toast.LENGTH_SHORT).show();
                 } else{
+                    nonot = true;
                     Toast.makeText(getContext(), "데이터를 전송하였습니다.", Toast.LENGTH_SHORT).show();
                 }
             } else{

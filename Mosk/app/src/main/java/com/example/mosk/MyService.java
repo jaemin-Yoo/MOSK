@@ -143,7 +143,7 @@ public class MyService extends Service {
                             double distance = 0.0;
                             distance = getDistance(infLat, infLong, myLat, myLong);
 
-                            if (distance<std_distance){
+                            if (distance<std_distance && MapViewFragment.nonot == false){
                                 warningNotification();
                                 infstate = true;
                                 Log.d(TAG, "동선 겹침");
@@ -290,7 +290,7 @@ public class MyService extends Service {
         builder.setStyle(style);
         builder.setWhen(0);
         builder.setShowWhen(false);
-        Intent notificationIntent = new Intent(this, MapViewFragment.class);
+        Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
         builder.setContentIntent(pendingIntent);
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -302,28 +302,6 @@ public class MyService extends Service {
         Notification notification = builder.build();
         startForeground(1, notification);
     }
-
-//    public void warningNotification(){
-//        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "2");
-//        builder.setSmallIcon(R.drawable.warning);
-//        builder.setContentText("확진자와 동선이 겹쳤습니다.");
-//        builder.setContentTitle("경고");
-//        builder.setAutoCancel(true);
-//        builder.setVibrate(new long[]{1000,1000});
-//        builder.setWhen(0);
-//        builder.setShowWhen(true);
-//        Intent notificationIntent = new Intent(this, MainActivity.class);
-//        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-//        builder.setContentIntent(pendingIntent);
-//        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-//        Log.d(TAG, "W1");
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            Log.d(TAG, "W2");
-//            manager.createNotificationChannel(new NotificationChannel("2", "warning", NotificationManager.IMPORTANCE_NONE));
-//        }
-//        Notification notification = builder.build();
-//        startForeground(2,notification);
-//    }
 
     public void createNotificationChannel()
     {
