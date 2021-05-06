@@ -1,11 +1,17 @@
 package com.example.mosk;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,6 +34,7 @@ import com.google.android.material.tabs.TabLayout;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "Log";
     private ViewPager mViewPager;
     private TabLayout tabLayout;
 
@@ -37,10 +44,20 @@ public class MainActivity extends AppCompatActivity {
     private final String tablename = "location";
     private final String tablehome = "place";
 
+    //Network
+    ConnectivityManager connectivityManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Network change Detection
+        connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkRequest.Builder wifiBuilder = new NetworkRequest.Builder();
+        wifiBuilder.addTransportType(NetworkCapabilities.TRANSPORT_WIFI); // 해당 콜백 등록
+        wifiBuilder.addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR);
+        connectivityManager.registerNetworkCallback(wifiBuilder.build(), wifiCallback);
 
         //Create DB, Table
         locationDB = this.openOrCreateDatabase(dbname, MODE_PRIVATE, null);
@@ -107,6 +124,26 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private ConnectivityManager.NetworkCallback wifiCallback = new ConnectivityManager.NetworkCallback() {
+        @Override
+        public void onAvailable(Network network) {
+            super.onAvailable(network);
+            Log.d(TAG, "네트워크 연결됨");
+        }
+
+        @Override
+        public void onLost(Network network) {
+            super.onLost(network);
+            Log.d(TAG, "네트워크 연결 끊김");
+        }
+    };
+
+    @Override
+    protected void onDestroy() { // 콜백 해제
+        super.onDestroy();
+        connectivityManager.unregisterNetworkCallback(wifiCallback);
     }
 
     private void setupTabIcons(TabLayout tabLayout){
