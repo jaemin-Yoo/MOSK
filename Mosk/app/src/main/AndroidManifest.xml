@@ -16,6 +16,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        <activity
+            android:name=".SplashActivity"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,6 +34,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+
 
         <activity android:name=".LoginActivity"></activity>
         <activity android:name=".RegisterActivity"></activity>
@@ -37,6 +50,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDy_-p4Qyq9p60iLgOB0H9JCpzGSI0PhYE"/>
 <!--            android:value="AIzaSyBbF-0_zrOLTh7_V6fJ-b84V9pdryH_7IE"-->
+
 
 
     </application>
