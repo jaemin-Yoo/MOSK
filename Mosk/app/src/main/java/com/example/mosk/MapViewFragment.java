@@ -552,10 +552,11 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
                     Toast.makeText(getContext(), "전송 할 데이터가 없습니다.", Toast.LENGTH_SHORT).show();
                 } else{
                     nonot = true;
+                    data = "";
                     Toast.makeText(getContext(), "데이터를 전송하였습니다.", Toast.LENGTH_SHORT).show();
                 }
             } else{
-                Toast.makeText(getContext(), "서버 상태를 확인하세요.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "서버 상태 확인 및 1분 후 재시도하세요.", Toast.LENGTH_SHORT).show();
             }
         }
         else{

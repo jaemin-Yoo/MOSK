@@ -153,6 +153,7 @@ public class MyService extends Service {
                         break; // 스레드를 종료해도 while문이 작동하는 현상 해결
                     } else{
                         try {
+                            networKWriter = null;
                             sleep(60000); // 서버와 연결이 안되면, 주기적으로 서버와 연결을 요청함
                         } catch (InterruptedException interruptedException) {
                             interruptedException.printStackTrace();
