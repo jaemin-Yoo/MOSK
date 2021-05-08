@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
@@ -515,7 +516,9 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
                     dialog_alert_sending();
                     break;
                 case R.id.fab_cal:
-                    locationDB.execSQL("INSERT INTO "+tablename+" VALUES('2021-05-05 18:03:08','2021-05-05 21:12:32','35.83072','128.7543047')");
+                    //locationDB.execSQL("INSERT INTO "+tablename+" VALUES('2021-05-05 18:03:08','2021-05-05 21:12:32','35.83072','128.7543047')");
+                    DialogFragment newFragment = new DatePickerFragment();
+                    newFragment.show(getFragmentManager(),"datePicker");
                     Toast.makeText(mContext,"캘린더로 보기",Toast.LENGTH_SHORT).show();
                     toggleFab();
                 default:

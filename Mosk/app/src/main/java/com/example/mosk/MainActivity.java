@@ -34,6 +34,10 @@ public class MainActivity extends AppCompatActivity {
     private final String tablename = "location";
     private final String tablehome = "place";
 
+    //Calender
+    public static Boolean dateset = false;
+    public static int year, month, day;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,6 +108,15 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    public void processDatePickerResult(int year, int month, int day){
+        String year_string = Integer.toString(year);
+        String month_string = Integer.toString(month+1);
+        String day_string = Integer.toString(day);
+        String dateMessage = year_string+"-"+month_string+"-"+day_string;
+
+        Toast.makeText(this,dateMessage,Toast.LENGTH_SHORT).show();
     }
 
     private void setupTabIcons(TabLayout tabLayout){
