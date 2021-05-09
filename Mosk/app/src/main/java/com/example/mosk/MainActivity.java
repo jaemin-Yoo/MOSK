@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,6 +23,9 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.tabs.TabLayout;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "Log";
@@ -37,11 +41,20 @@ public class MainActivity extends AppCompatActivity {
     //Calender
     public static Boolean dateset = false;
     public static int year, month, day;
+    public static String markerDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //현재날짜 가져오기
+        if (dateset == false){
+            long now = System.currentTimeMillis();
+            Date mDate = new Date(now);
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            markerDate = simpleDateFormat.format(mDate);
+        }
 
         //Create DB, Table
         locationDB = this.openOrCreateDatabase(dbname, MODE_PRIVATE, null);
@@ -49,7 +62,17 @@ public class MainActivity extends AppCompatActivity {
                 +" (preTime datetime PRIMARY KEY, curTime datetime DEFAULT NULL, Latitude double NOT NULL, Longitude double NOT NULL)");
 
         locationDB.execSQL("CREATE TABLE IF NOT EXISTS "+tablehome
-                +" (Latitude double NOT NULL, Longitude double NOT NULL, PRIMARY KEY(Latitude, Longitude))");
+                +" (Latitude double NOT NULL, Longitude double NOT NULL, name VARCHAR(32) NOT NULL, PRIMARY KEY(Latitude, Longitude))");
+
+
+        //TEST
+//        locationDB.execSQL("INSERT INTO "+tablename+" VALUES('2021-05-02 13:00:00', '2021-05-02 16:00:00', 35.836991613820786, 128.75310147289173)");
+//        locationDB.execSQL("INSERT INTO "+tablename+" VALUES('2021-05-03 13:00:00', '2021-05-03 16:00:00', 35.83693942749087, 128.7534608889037)");
+//        locationDB.execSQL("INSERT INTO "+tablename+" VALUES('2021-05-06 13:00:00', '2021-05-07 01:00:00', 35.836991613820786, 128.75310147289173)");
+//        locationDB.execSQL("INSERT INTO "+tablename+" VALUES('2021-05-10 13:00:00', '2021-05-10 16:00:00', 35.8367045886332, 128.75294054033745)");
+
+
+
 
         // 2주 전 위치정보 삭제
         Cursor cursor = locationDB.rawQuery("SELECT * FROM "+tablename+" WHERE curTime<datetime('now','localtime','-14 days')", null);
@@ -108,15 +131,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-    }
-
-    public void processDatePickerResult(int year, int month, int day){
-        String year_string = Integer.toString(year);
-        String month_string = Integer.toString(month+1);
-        String day_string = Integer.toString(day);
-        String dateMessage = year_string+"-"+month_string+"-"+day_string;
-
-        Toast.makeText(this,dateMessage,Toast.LENGTH_SHORT).show();
     }
 
     private void setupTabIcons(TabLayout tabLayout){

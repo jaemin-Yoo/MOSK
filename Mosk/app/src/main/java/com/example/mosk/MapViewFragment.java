@@ -1,6 +1,7 @@
 package com.example.mosk;
 
 import android.Manifest;
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -24,7 +26,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
@@ -47,23 +48,26 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class MapViewFragment extends Fragment implements OnMapReadyCallback, ActivityCompat.OnRequestPermissionsResultCallback {
-    private static final String TAG = "MoskTag";
+    private static final String TAG = "Log";
     ViewGroup viewGroup;
     Context mContext;
 
     //Socket
     private String data = "";
 
-    /*fab 설정*/
+    // Fab
     private FloatingActionButton fab_more,fab_home,fab_send,fab_cal;
     private Animation fab_open, fab_close;
     private boolean isFabOpen=false;
     private ClickListener listener = new ClickListener();
 
-    //GPS
+    // GPS
     private GoogleMap mMap;
     private Marker[] currentMarker = new Marker[100];
     private int marker_cnt = 0;
@@ -79,23 +83,22 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
 
     private int wait = 0;
 
-    // 앱을 실행하기 위해 필요한 퍼미션을 정의합니다.
+    // Permission
     String[] REQUIRED_PERMISSIONS = {
             Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.READ_PHONE_STATE,Manifest.permission.READ_PHONE_NUMBERS,
             Manifest.permission.ACCESS_BACKGROUND_LOCATION
     };  // 외부 저장소
 
+    //Location
     Location mCurrentLocatiion;
     LatLng currentPosition;
     private double Lat, Long;
     private double Lat_h = 0.0, Long_h = 0.0;
+    private String name_h = "";
     private String color = "";
-
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationRequest locationRequest;
-
-    private View mLayout;
 
     //SQLite
     SQLiteDatabase locationDB;
@@ -105,6 +108,9 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
 
     //Notification state
     public static Boolean nonot = false;
+
+    //Calendar
+    private DatePickerDialog.OnDateSetListener callbackMethod;
 
     public void onAttach(Context context){
         super.onAttach(context);
@@ -208,19 +214,22 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
 
     public void markerUpdate(){
         int i=0;
-        if (currentMarker[i]!=null){
+        while (currentMarker[i]!=null){
             currentMarker[i].remove();
             i++;
         }
 
         marker_cnt=0;
-        Cursor cursor = locationDB.rawQuery("SELECT * FROM "+tablename, null);
+        Log.d(TAG, "markerDate : "+MainActivity.markerDate);
+        //Cursor cursor = locationDB.rawQuery("SELECT * FROM "+tablename+" WHERE preTime<='"+MainActivity.markerDate+" 23:59:59' AND curTime>='"+MainActivity.markerDate+" 00:00:00'", null);
+        Cursor cursor = locationDB.rawQuery("SELECT * FROM "+tablename+" WHERE preTime LIKE '"+MainActivity.markerDate+"%' OR curTime LIKE '"+MainActivity.markerDate+"%'", null);
         Cursor cursor_h = locationDB.rawQuery("SELECT * FROM "+tablehome, null);
         Log.d(TAG, "cnt = "+cursor_h.getCount());
         if (cursor_h.getCount() != 0){
             while(cursor_h.moveToNext()){
                 Lat_h = cursor_h.getDouble(0);
                 Long_h = cursor_h.getDouble(1);
+                name_h = cursor_h.getString(2);
 
                 color = "blue";
                 setCurrentLocation("", "", Lat_h, Long_h, color); // 자주가는 장소 마커표시
@@ -274,7 +283,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
 
         if (color == "blue"){
             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
-            markerOptions.title("자주가는장소");
+            markerOptions.title(name_h);
             Log.d(TAG, "1");
         } else{
             if (curtime == null){
@@ -517,14 +526,46 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
                     break;
                 case R.id.fab_cal:
                     //locationDB.execSQL("INSERT INTO "+tablename+" VALUES('2021-05-05 18:03:08','2021-05-05 21:12:32','35.83072','128.7543047')");
-                    DialogFragment newFragment = new DatePickerFragment();
-                    newFragment.show(getFragmentManager(),"datePicker");
-                    Toast.makeText(mContext,"캘린더로 보기",Toast.LENGTH_SHORT).show();
+                    //캘린더 보기
+                    showCalendar();
                     toggleFab();
                 default:
                     break;
             }
         }
+    }
+
+    public void showCalendar(){
+        callbackMethod = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int y, int m, int d) {
+                MainActivity.year = y;
+                MainActivity.month = m;
+                MainActivity.day = d;
+                Log.d(TAG, "onDateSet : "+MainActivity.day);
+                MainActivity.dateset = true;
+
+                String year_string = Integer.toString(y);
+                String month_string = String.format("%02d",m+1);
+                String day_string = String.format("%02d",d);
+                String dateMessage = year_string+"-"+month_string+"-"+day_string;
+
+                MainActivity.markerDate = dateMessage;
+                markerUpdate();
+            }
+        };
+
+        final Calendar c = Calendar.getInstance();
+        if (MainActivity.dateset == false){
+            MainActivity.year = c.get(Calendar.YEAR);
+            MainActivity.month = c.get(Calendar.MONTH);
+            MainActivity.day = c.get(Calendar.DAY_OF_MONTH);
+        }
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(),callbackMethod,MainActivity.year,MainActivity.month,MainActivity.day);
+        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - (24 * 60 * 60 * 1000) * 14); // 최소 2주 전 까지 날짜 선택 가능
+        datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis()); // 최대 오늘까지 날짜 선택 가능
+        datePickerDialog.show();
     }
 
     private void SendingService(){
@@ -596,7 +637,14 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
         builder.setPositiveButton("입력",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(mContext,edittext.getText().toString() ,Toast.LENGTH_LONG).show();
+                        String name = edittext.getText().toString();
+                        try{
+                            locationDB.execSQL("INSERT INTO "+tablehome+" VALUES("+currentPosition.latitude+", "+currentPosition.longitude+", '"+name+"')");
+                            Toast.makeText(mContext,"저장이 완료되었습니다.",Toast.LENGTH_LONG).show();
+                        } catch(Exception e){
+                            Toast.makeText(mContext, "이미 저장된 장소입니다.", Toast.LENGTH_SHORT).show();
+                        }
+                        markerUpdate();
                     }
                 });
         builder.setNegativeButton("취소",
