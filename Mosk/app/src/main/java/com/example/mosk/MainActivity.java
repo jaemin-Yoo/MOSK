@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,7 +31,7 @@ import java.util.Date;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "moskLog";
-    private ViewPager mViewPager;
+    private ViewPager viewPager;
     private TabLayout tabLayout;
 
     //SQLite
@@ -48,6 +49,22 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        viewPager = (ViewPager) findViewById(R.id.pager);
+
+        String str = getIntent().getStringExtra("ExtraFragment");
+        if(str != null){
+            if(str.equals("Notification")){
+                Handler mHandler = new Handler();
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        viewPager.setCurrentItem(2); // 알림바 클릭 시 지도 Fragment로 이동
+                    }
+                }, 100);
+            }
+        }
 
         //현재날짜 가져오기
         if (dateset == false){
@@ -102,12 +119,7 @@ public class MainActivity extends AppCompatActivity {
         toolbar.setTitle("");
         toolbar.setSubtitle("");
 
-        mViewPager = (ViewPager) findViewById(R.id.container);
-        tabLayout = (TabLayout) findViewById(R.id.tab_layout);
-
         setupTabIcons(tabLayout);
-
-        final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
 
         final com.example.mosk.PagerAdapter adapter=new com.example.mosk.PagerAdapter(getSupportFragmentManager(),tabLayout.getTabCount());
 

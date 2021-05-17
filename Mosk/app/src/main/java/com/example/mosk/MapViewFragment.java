@@ -2,6 +2,7 @@ package com.example.mosk;
 
 import android.Manifest;
 import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -28,6 +29,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -56,6 +58,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.PrintWriter;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -82,14 +85,10 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
     private GoogleMap mMap;
     private Marker[] currentMarker = new Marker[100];
     private int marker_cnt = 0;
-
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
-    //gps가 켜져 있는 동안에 실시간으로 바뀌는 위치정보를 얻기 위함
-    private static final int UPDATE_INTERVAL_MS = 1000;//1초간격
+    private static final int UPDATE_INTERVAL_MS = 1000;//1초간격 (gps가 켜져 있는 동안에 실시간으로 바뀌는 위치정보를 얻기 위함)
     private static final int FASTEST_UPDATE_INTERVAL_MS = 500; // 0.5초
-
-    // onRequestPermissionsResult에서 수신된 결과에서 ActivityCompat.requestPermissions를 사용한 퍼미션 요청을 구별하기 위해 사용됩니다.
-    private static final int PERMISSIONS_REQUEST_CODE = 100;
+    private static final int PERMISSIONS_REQUEST_CODE = 100; // onRequestPermissionsResult에서 수신된 결과에서 ActivityCompat.requestPermissions를 사용한 퍼미션 요청을 구별하기 위해 사용됩니다.
     boolean needRequest = false;
 
     private int wait = 0;
@@ -99,7 +98,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
             Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.READ_PHONE_STATE,Manifest.permission.READ_PHONE_NUMBERS,
             Manifest.permission.ACCESS_BACKGROUND_LOCATION
-    };  // 외부 저장소
+    };
 
     //Location
     Location mCurrentLocatiion;
@@ -122,11 +121,19 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
 
     //Calendar
     private DatePickerDialog.OnDateSetListener callbackMethod;
+    private TimePickerDialog.OnTimeSetListener callbackpretime;
+    private TimePickerDialog.OnTimeSetListener callbackcurtime;
 
     //List
     List<Map<String, Object>> dialogItemList;
     int[] img = {R.drawable.icon_marker, R.drawable.icon_delete};
     String[] text = {"현재위치등록","위치삭제"};
+
+    //Developer mode
+    private Boolean mode = false;
+    private String pretime_picker, curtime_picker;
+    private double lat_picker = 0.0, lng_picker = 0.0;
+
 
     public void onAttach(Context context){
         super.onAttach(context);
@@ -208,8 +215,83 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
 
         markerUpdate();
 
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                if (mode == true){
+                    pretime_picker = "";
+                    curtime_picker = "";
+                    showTimePicker(callbackcurtime, "curTime");
+                    showTimePicker(callbackpretime, "preTime");
+
+                    lat_picker = latLng.latitude; // 위도
+                    lng_picker = latLng.longitude; // 경도
+                }
+            }
+        });
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(final Marker marker) {
+                if (mode == true){
+                    AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                    builder.setTitle("위치 삭제");
+                    builder.setMessage("해당 위치를 삭제하시겠습니까?");
+                    builder.setPositiveButton("예",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    String[] time = marker.getTitle().split(" ~ ");
+                                    String pretime = time[0];
+                                    try{
+                                        locationDB.execSQL("DELETE FROM "+tablename+" WHERE preTime='"+pretime+"'");
+                                        markerUpdate();
+                                    } catch (Exception e){
+                                        Toast.makeText(mContext, "Error", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+                    builder.setNegativeButton("아니오",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            });
+                    builder.show();
+                    return true;
+                }
+                return false;
+            }
+        });
+
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
         mMap.animateCamera(CameraUpdateFactory.zoomTo(18));
+    }
+
+    private void showTimePicker(TimePickerDialog.OnTimeSetListener callback, final String title){
+        callback = new TimePickerDialog.OnTimeSetListener(){
+            @Override
+            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                if (title == "preTime"){
+                    pretime_picker = MainActivity.markerDate+" "+String.format("%02d",hourOfDay)+":"+String.format("%02d",minute)+":00";
+                } else{
+                    if (pretime_picker != ""){
+                        curtime_picker = MainActivity.markerDate+" "+String.format("%02d",hourOfDay)+":"+String.format("%02d",minute)+":00";
+                        Log.d(TAG, "All : "+pretime_picker+" "+curtime_picker+" "+lat_picker+" "+lng_picker);
+                        locationDB.execSQL("INSERT INTO "+tablename+" VALUES('"+pretime_picker+"', '"+curtime_picker+"', "+lat_picker+", "+lng_picker+")");
+                        markerUpdate();
+                        Toast.makeText(mContext, "마커가 생성되었습니다.", Toast.LENGTH_SHORT).show();
+                    } else{
+                        Toast.makeText(mContext, "preTime을 설정해주세요.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        };
+        final Calendar c = Calendar.getInstance();
+        int hour = c.get(Calendar.HOUR_OF_DAY);
+        int min = c.get(Calendar.MINUTE);
+        final TimePickerDialog timePickerDialog = new TimePickerDialog(getActivity(),android.R.style.Theme_Holo_Light_Dialog_NoActionBar,callback,hour,min,false);
+        timePickerDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        timePickerDialog.setTitle(title);
+        timePickerDialog.show();
     }
 
     LocationCallback locationCallback = new LocationCallback() {
@@ -557,11 +639,22 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
                     toggleFab();
                     break;
                 case R.id.fab_develop:
+                    onDevelopMode();
                     toggleFab();
                     break;
                 default:
                     break;
             }
+        }
+    }
+
+    private void onDevelopMode(){
+        if (mode == false){
+            mode = true;
+            Toast.makeText(mContext, "개발자 모드 ON", Toast.LENGTH_SHORT).show();
+        } else{
+            mode = false;
+            Toast.makeText(mContext, "개발자 모드 OFF", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -658,7 +751,6 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
     }
 
     private void dialog_home(){
-
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         LayoutInflater inflater = getLayoutInflater();
         View view = inflater.inflate(R.layout.home_menu, null);

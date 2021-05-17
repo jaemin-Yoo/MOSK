@@ -285,6 +285,7 @@ public class MyService extends Service {
         builder.setWhen(0);
         builder.setShowWhen(false);
         Intent notificationIntent = new Intent(this, MainActivity.class);
+        notificationIntent.putExtra("ExtraFragment","Notification");
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
         builder.setContentIntent(pendingIntent);
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
