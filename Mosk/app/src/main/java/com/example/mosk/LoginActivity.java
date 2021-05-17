@@ -22,7 +22,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class LoginActivity extends AppCompatActivity {
-    String TAG="log";
+    private static final String TAG = "moskLog";
 
     EditText EditID,EditPW;
     ImageView Img_icon;

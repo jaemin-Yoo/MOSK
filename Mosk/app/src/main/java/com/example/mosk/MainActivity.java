@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,7 +29,7 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "Log";
+    private static final String TAG = "moskLog";
     private ViewPager mViewPager;
     private TabLayout tabLayout;
 
@@ -62,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
                 +" (preTime datetime PRIMARY KEY, curTime datetime DEFAULT NULL, Latitude double NOT NULL, Longitude double NOT NULL)");
 
         locationDB.execSQL("CREATE TABLE IF NOT EXISTS "+tablehome
-                +" (Latitude double NOT NULL, Longitude double NOT NULL, name VARCHAR(32) NOT NULL, PRIMARY KEY(Latitude, Longitude))");
+                +" (name VARCHAR(32) PRIMARY KEY, Latitude double NOT NULL, Longitude double NOT NULL)");
 
 
         //TEST

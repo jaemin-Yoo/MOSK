@@ -53,7 +53,7 @@ import java.util.List;
 import static android.content.Context.MODE_PRIVATE;
 
 public class InfectionChartFragment<Likebutton> extends Fragment{
-    private String TAG = "Log";
+    private String TAG = "moskLog";
 
     //Layout
     ViewGroup viewGroup;

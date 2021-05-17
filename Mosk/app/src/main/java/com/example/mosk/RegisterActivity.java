@@ -24,7 +24,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class RegisterActivity extends AppCompatActivity {
-    String TAG="Log";
+    private static final String TAG = "moskLog";
 
     ClickListener listener = new ClickListener(); //class 선언하기
     EditText EditNAME,EditLOCAL,EditID,EditPW;

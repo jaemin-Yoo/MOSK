@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -18,8 +20,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -49,12 +57,15 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MapViewFragment extends Fragment implements OnMapReadyCallback, ActivityCompat.OnRequestPermissionsResultCallback {
-    private static final String TAG = "Log";
+    private static final String TAG = "moskLog";
     ViewGroup viewGroup;
     Context mContext;
 
@@ -62,7 +73,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
     private String data = "";
 
     // Fab
-    private FloatingActionButton fab_more,fab_home,fab_send,fab_cal;
+    private FloatingActionButton fab_more,fab_home,fab_send,fab_cal, fab_develop;
     private Animation fab_open, fab_close;
     private boolean isFabOpen=false;
     private ClickListener listener = new ClickListener();
@@ -112,6 +123,11 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
     //Calendar
     private DatePickerDialog.OnDateSetListener callbackMethod;
 
+    //List
+    List<Map<String, Object>> dialogItemList;
+    int[] img = {R.drawable.icon_marker, R.drawable.icon_delete};
+    String[] text = {"현재위치등록","위치삭제"};
+
     public void onAttach(Context context){
         super.onAttach(context);
         mContext=context;
@@ -141,6 +157,15 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
         mapFragment.getMapAsync(this);
 
         setFab();
+        dialogItemList = new ArrayList<>();
+
+        for(int i=0;i<img.length;i++){
+            Map<String, Object> itemMap = new HashMap<>();
+            itemMap.put("img", img[i]);
+            itemMap.put("text", text[i]);
+
+            dialogItemList.add(itemMap);
+        }
         return viewGroup;
     }
 
@@ -227,9 +252,9 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
         Log.d(TAG, "cnt = "+cursor_h.getCount());
         if (cursor_h.getCount() != 0){
             while(cursor_h.moveToNext()){
-                Lat_h = cursor_h.getDouble(0);
-                Long_h = cursor_h.getDouble(1);
-                name_h = cursor_h.getString(2);
+                name_h = cursor_h.getString(0);
+                Lat_h = cursor_h.getDouble(1);
+                Long_h = cursor_h.getDouble(2);
 
                 color = "blue";
                 setCurrentLocation("", "", Lat_h, Long_h, color); // 자주가는 장소 마커표시
@@ -494,10 +519,12 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
         fab_home=viewGroup.findViewById(R.id.fab_home);
         fab_send=viewGroup.findViewById(R.id.fab_send);
         fab_cal=viewGroup.findViewById(R.id.fab_cal);
+        fab_develop = viewGroup.findViewById(R.id.fab_develop);
 
         Glide.with(this).load("https://i.imgur.com/n76lRoV.png").into(fab_home);
         Glide.with(this).load("https://i.imgur.com/M5ywSIa.png").into(fab_send);
         Glide.with(this).load("https://i.imgur.com/NUCaHI0.png").into(fab_cal);
+        Glide.with(this).load("https://i.imgur.com/6D7W3f3.png").into(fab_develop);
 
         fab_open = AnimationUtils.loadAnimation(mContext, R.anim.fab_open);
         fab_close= AnimationUtils.loadAnimation(mContext, R.anim.fab_close);
@@ -506,6 +533,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
         fab_home.setOnClickListener(listener);
         fab_send.setOnClickListener(listener);
         fab_cal.setOnClickListener(listener);
+        fab_develop.setOnClickListener(listener);
     }
 
     /*클릭리스너 클래스*/
@@ -525,10 +553,12 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
                     dialog_alert_sending();
                     break;
                 case R.id.fab_cal:
-                    //locationDB.execSQL("INSERT INTO "+tablename+" VALUES('2021-05-05 18:03:08','2021-05-05 21:12:32','35.83072','128.7543047')");
-                    //캘린더 보기
                     showCalendar();
                     toggleFab();
+                    break;
+                case R.id.fab_develop:
+                    toggleFab();
+                    break;
                 default:
                     break;
             }
@@ -628,6 +658,121 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
     }
 
     private void dialog_home(){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        LayoutInflater inflater = getLayoutInflater();
+        View view = inflater.inflate(R.layout.home_menu, null);
+        builder.setView(view);
+
+        TextView title = view.findViewById(R.id.home_menu_title);
+        title.setText("자주가는장소");
+
+        final ListView listview = (ListView)view.findViewById(R.id.listview_alterdialog_list);
+        final AlertDialog dialog = builder.create();
+
+        SimpleAdapter simpleAdapter = new SimpleAdapter(getContext(), dialogItemList,
+                R.layout.home_menu_item,
+                new String[]{"img", "text"},
+                new int[]{R.id.item_img, R.id.item_text});
+
+        listview.setAdapter(simpleAdapter);
+        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                switch (position){
+                    case 0:
+                        setHome();
+                        break;
+                    case 1:
+                        deleteHome();
+                        break;
+                    default:
+                        break;
+                }
+                dialog.dismiss();
+            }
+        });
+
+        ImageButton close = view.findViewById(R.id.btn_close);
+        close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.setCancelable(false);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.show();
+    }
+
+    private void deleteHome(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        LayoutInflater inflater = getLayoutInflater();
+        View view = inflater.inflate(R.layout.home_menu, null);
+        builder.setView(view);
+
+        TextView title = view.findViewById(R.id.home_menu_title);
+        title.setText("위치삭제");
+
+        final List<String> list = new ArrayList<>();
+        Cursor cursor = locationDB.rawQuery("SELECT name FROM "+tablehome, null);
+        while(cursor.moveToNext()){
+            String home = cursor.getString(0);
+            list.add(home);
+        }
+
+        final ListView listview = view.findViewById(R.id.listview_alterdialog_list);
+        final AlertDialog dialog = builder.create();
+
+        ArrayAdapter adapter = new ArrayAdapter(getContext(), android.R.layout.simple_list_item_1, list);
+
+        listview.setAdapter(adapter);
+        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                final String select_home = list.get(position);
+                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                builder.setTitle("위치 삭제");
+                builder.setMessage("'"+select_home+"' 장소를 삭제하시겠습니까?");
+                builder.setPositiveButton("예",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                try{
+                                    locationDB.execSQL("DELETE FROM "+tablehome+" WHERE name='"+select_home+"'");
+                                    Toast.makeText(getContext(), "삭제되었습니다.", Toast.LENGTH_SHORT).show();
+                                }catch (Exception e){
+                                    Toast.makeText(getContext(), "Error", Toast.LENGTH_SHORT).show();
+                                }
+                                markerUpdate();
+                            }
+                        });
+                builder.setNegativeButton("아니오",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        });
+                builder.show();
+                dialog.dismiss();
+            }
+        });
+
+        ImageButton close = view.findViewById(R.id.btn_close);
+        close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.setCancelable(false);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.show();
+    }
+
+    private void setHome(){
         final EditText edittext = new EditText(mContext);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this.mContext);
@@ -639,10 +784,10 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
                     public void onClick(DialogInterface dialog, int which) {
                         String name = edittext.getText().toString();
                         try{
-                            locationDB.execSQL("INSERT INTO "+tablehome+" VALUES("+currentPosition.latitude+", "+currentPosition.longitude+", '"+name+"')");
+                            locationDB.execSQL("INSERT INTO "+tablehome+" VALUES('"+name+"', "+currentPosition.latitude+", "+currentPosition.longitude+")");
                             Toast.makeText(mContext,"저장이 완료되었습니다.",Toast.LENGTH_LONG).show();
                         } catch(Exception e){
-                            Toast.makeText(mContext, "이미 저장된 장소입니다.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(mContext, "중복된 이름이 존재합니다.", Toast.LENGTH_SHORT).show();
                         }
                         markerUpdate();
                     }
@@ -662,20 +807,24 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
             fab_home.startAnimation(fab_close);
             fab_send.startAnimation(fab_close);
             fab_cal.startAnimation(fab_close);
+            fab_develop.startAnimation(fab_close);
 
             fab_home.setClickable(false);
             fab_send.setClickable(false);
             fab_cal.setClickable(false);
+            fab_develop.setClickable(false);
 
             fab_more.setImageResource(R.drawable.ic_add);
         }else{
             fab_home.startAnimation(fab_open);
             fab_send.startAnimation(fab_open);
             fab_cal.startAnimation(fab_open);
+            fab_develop.startAnimation(fab_open);
 
             fab_home.setClickable(true);
             fab_send.setClickable(true);
             fab_cal.setClickable(true);
+            fab_develop.setClickable(true);
 
             fab_more.setImageResource(R.drawable.ic_close);
         }
