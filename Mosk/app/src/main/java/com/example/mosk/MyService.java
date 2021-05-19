@@ -65,7 +65,7 @@ public class MyService extends Service {
     private int port = 8001;
 
     //State
-    public static Boolean infstate = false;
+    public static int infstate = 0;
 
     //Notification
     private static final String PRIMARY_CHANNEL_ID = "primary_notification_channel";
@@ -138,11 +138,32 @@ public class MyService extends Service {
 
                             if (distance<std_distance && MapViewFragment.nonot == false){
                                 warningNotification();
-                                infstate = true;
+                                infstate = 1;
                                 Log.d(TAG, "동선 겹침");
                                 break;
                             }
                         }
+
+                        if (infstate == 0){
+                            Cursor cursor2 = locationDB.rawQuery("SELECT * FROM "+tablename+" WHERE curTime>=datetime('"+datalist[0]+"','localtime','-1 hours')", null);
+                            while(cursor2.moveToNext()){
+                                String pretime = cursor2.getString(0);
+                                String curtime = cursor2.getString(1);
+                                double myLat = cursor2.getDouble(2);
+                                double myLong = cursor2.getDouble(3);
+
+                                double distance = 0.0;
+                                distance = getDistance(infLat, infLong, myLat, myLong);
+
+                                if (distance<std_distance && MapViewFragment.nonot == false){
+                                    warningNotification();
+                                    infstate = 2;
+                                    Log.d(TAG, "동선 겹칠 뻔");
+                                    break;
+                                }
+                            }
+                        }
+
                         if (recv_data == null) {
                             networKWriter = null;
                             break;

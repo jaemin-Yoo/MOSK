@@ -171,7 +171,7 @@ public class InfectionChartFragment<Likebutton> extends Fragment{
         return viewGroup;
     }
 
-    public void setChart(PieChart chart){
+    public void setChart(PieChart chart) {
         chart.setUsePercentValues(true);
         chart.getDescription().setEnabled(false);
         chart.setExtraOffsets(5, 10, 5, 5);
@@ -207,13 +207,17 @@ public class InfectionChartFragment<Likebutton> extends Fragment{
         l.setDrawInside(false);
         l.setEnabled(false);
 
-        ArrayList<PieEntry> entries=new ArrayList<>();
+        ArrayList<PieEntry> entries = new ArrayList<>();
 
-        if (MyService.infstate == true){
+        if (MyService.infstate == 1) {
             // 동선이 겹칠 때,
-            entries.add(new PieEntry(80,"감염 위험률"));  // 감염되는 값을 여기에 저장
-            entries.add(new PieEntry(20,"감염 안전율"));
-        } else if (MapViewFragment.nonot == true){
+            entries.add(new PieEntry(80, "감염 위험률"));  // 감염되는 값을 여기에 저장
+            entries.add(new PieEntry(20, "감염 안전율"));
+        } else if (MyService.infstate == 2){
+            // 동선이 겹치진 않았지만 위험할 때,
+            entries.add(new PieEntry(50, "감염 위험률"));  // 감염되는 값을 여기에 저장
+            entries.add(new PieEntry(50, "감염 안전율"));
+        }else if (MapViewFragment.nonot == true){
             // 자신이 감염 되었을 때,
             entries.add(new PieEntry(100,"감염 위험률"));  // 감염되는 값을 여기에 저장
             entries.add(new PieEntry(0,"감염 안전율"));
