@@ -221,7 +221,6 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
                 if (mode == true){
                     pretime_picker = "";
                     curtime_picker = "";
-                    showTimePicker(callbackcurtime, "curTime");
                     showTimePicker(callbackpretime, "preTime");
 
                     lat_picker = latLng.latitude; // 위도
@@ -272,6 +271,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                 if (title == "preTime"){
                     pretime_picker = MainActivity.markerDate+" "+String.format("%02d",hourOfDay)+":"+String.format("%02d",minute)+":00";
+                    showTimePicker(callbackcurtime, "curTime");
                 } else{
                     if (pretime_picker != ""){
                         curtime_picker = MainActivity.markerDate+" "+String.format("%02d",hourOfDay)+":"+String.format("%02d",minute)+":00";
