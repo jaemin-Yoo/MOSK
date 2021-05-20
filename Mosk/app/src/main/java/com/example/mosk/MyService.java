@@ -129,8 +129,6 @@ public class MyService extends Service {
 
                         Cursor cursor = locationDB.rawQuery("SELECT * FROM "+tablename+" WHERE preTime<='"+datalist[1]+"' AND curTime>='"+datalist[0]+"'", null);
                         while(cursor.moveToNext()){
-                            String pretime = cursor.getString(0);
-                            String curtime = cursor.getString(1);
                             double myLat = cursor.getDouble(2);
                             double myLong = cursor.getDouble(3);
 
@@ -146,10 +144,8 @@ public class MyService extends Service {
                         }
 
                         if (infstate == 0){
-                            Cursor cursor2 = locationDB.rawQuery("SELECT * FROM "+tablename+" WHERE curTime>=datetime('"+datalist[0]+"','localtime','-1 hours')", null);
+                            Cursor cursor2 = locationDB.rawQuery("SELECT * FROM "+tablename+" WHERE preTime<=datetime('"+datalist[1]+"','+1 hours')", null);
                             while(cursor2.moveToNext()){
-                                String pretime = cursor2.getString(0);
-                                String curtime = cursor2.getString(1);
                                 double myLat = cursor2.getDouble(2);
                                 double myLong = cursor2.getDouble(3);
 
