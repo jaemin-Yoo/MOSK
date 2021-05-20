@@ -262,7 +262,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
         });
 
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(18));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
     }
 
     private void showTimePicker(TimePickerDialog.OnTimeSetListener callback, final String title){
@@ -311,7 +311,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
                 if(wait!=1) {
                     CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(currentPosition);
                     mMap.moveCamera(cameraUpdate);
-                    mMap.animateCamera(CameraUpdateFactory.zoomTo(18));
+                    mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
                 }
                 wait=1;
                 mCurrentLocatiion = location;

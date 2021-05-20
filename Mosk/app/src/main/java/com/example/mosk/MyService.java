@@ -13,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -137,8 +138,8 @@ public class MyService extends Service {
                             distance = getDistance(infLat, infLong, myLat, myLong);
 
                             if (distance<std_distance && MapViewFragment.nonot == false){
-                                warningNotification();
                                 infstate = 1;
+                                warningNotification(R.drawable.warning, infstate);
                                 Log.d(TAG, "동선 겹침");
                                 break;
                             }
@@ -156,8 +157,8 @@ public class MyService extends Service {
                                 distance = getDistance(infLat, infLong, myLat, myLong);
 
                                 if (distance<std_distance && MapViewFragment.nonot == false){
-                                    warningNotification();
                                     infstate = 2;
+                                    warningNotification(R.drawable.warning2, infstate);
                                     Log.d(TAG, "동선 겹칠 뻔");
                                     break;
                                 }
@@ -340,11 +341,16 @@ public class MyService extends Service {
     }
 
     // Notification Builder를 만드는 메소드
-    private NotificationCompat.Builder getNotificationBuilder() {
+    private NotificationCompat.Builder getNotificationBuilder(int drawble, int infstate) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, PRIMARY_CHANNEL_ID);
-        builder.setSmallIcon(R.drawable.warning);
-        builder.setContentText("확진자와 동선이 겹쳤습니다.");
-        builder.setContentTitle("경고");
+        builder.setSmallIcon(drawble);
+        if (infstate == 1){
+            builder.setContentText("확진자와 동선이 겹쳤습니다.");
+            builder.setContentTitle("위험");
+        } else{
+            builder.setContentText("확진자와 동선이 겹쳤을 수 있습니다.");
+            builder.setContentTitle("경고");
+        }
         builder.setAutoCancel(true);
         builder.setVibrate(new long[]{1000,1000});
         builder.setWhen(0);
@@ -356,9 +362,9 @@ public class MyService extends Service {
     }
 
     // Notification을 보내는 메소드
-    public void warningNotification(){
+    public void warningNotification(int drawable, int infstate){
         // Builder 생성
-        NotificationCompat.Builder notifyBuilder = getNotificationBuilder();
+        NotificationCompat.Builder notifyBuilder = getNotificationBuilder(drawable, infstate);
         // Manager를 통해 notification 디바이스로 전달
         mNotificationManager.notify(NOTIFICATION_ID,notifyBuilder.build());
     }
