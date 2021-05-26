@@ -16,6 +16,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -140,6 +141,9 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
     private String pretime_picker, curtime_picker;
     private double lat_picker = 0.0, lng_picker = 0.0;
 
+    //View
+    private TextView textView;
+
 
     public void onAttach(Context context){
         super.onAttach(context);
@@ -154,6 +158,12 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         viewGroup= (ViewGroup) inflater.inflate(R.layout.mapview_fragment,container,false); //xml과 연결
+
+        textView = viewGroup.findViewById(R.id.textView);
+
+        if (MyService.serviceIntent != null){
+            textView.setText("서비스 동작 중");
+        }
 
         locationDB = getActivity().openOrCreateDatabase(dbname, getActivity().MODE_PRIVATE, null);
 
@@ -668,9 +678,11 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
     private void onDevelopMode(){
         if (mode == false){
             mode = true;
+            textView.setText("개발자 모드 ON");
             Toast.makeText(mContext, "개발자 모드 ON", Toast.LENGTH_SHORT).show();
         } else{
             mode = false;
+            textView.setText("");
             Toast.makeText(mContext, "개발자 모드 OFF", Toast.LENGTH_SHORT).show();
         }
     }
@@ -789,8 +801,9 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
 
     private void dialog_alert_sending(){
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-        builder.setTitle("위치 데이터 전송");
-        builder.setMessage("위치 데이터를 서버에 전송하시겠습니까?");
+        builder.setTitle("확진자 데이터 전송");
+        builder.setMessage("코로나 양성 판정을 받으셨습니까?");
+        builder.setIcon(R.drawable.virus);
         builder.setPositiveButton("예",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
