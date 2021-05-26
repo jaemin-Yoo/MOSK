@@ -9,7 +9,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.location.LocationManager;
@@ -26,6 +28,7 @@ import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -54,14 +57,18 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.datepicker.MaterialCalendar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.prolificinteractive.materialcalendarview.CalendarDay;
+import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 
 import java.io.PrintWriter;
-import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -91,8 +98,6 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
     private static final int PERMISSIONS_REQUEST_CODE = 100; // onRequestPermissionsResult에서 수신된 결과에서 ActivityCompat.requestPermissions를 사용한 퍼미션 요청을 구별하기 위해 사용됩니다.
     boolean needRequest = false;
 
-    private int wait = 0;
-
     // Permission
     String[] REQUIRED_PERMISSIONS = {
             Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -109,6 +114,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
     private String color = "";
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationRequest locationRequest;
+    private int wait = 0;
 
     //SQLite
     SQLiteDatabase locationDB;
@@ -178,7 +184,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        Log.d(TAG, "onMapReady :");
+        Log.d(TAG, "onMapReady");
 
         mMap = googleMap;
 
@@ -275,7 +281,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
                 } else{
                     if (pretime_picker != ""){
                         curtime_picker = MainActivity.markerDate+" "+String.format("%02d",hourOfDay)+":"+String.format("%02d",minute)+":00";
-                        Log.d(TAG, "All : "+pretime_picker+" "+curtime_picker+" "+lat_picker+" "+lng_picker);
+                        Log.d(TAG, "Select Date and Location : "+pretime_picker+" "+curtime_picker+" "+lat_picker+" "+lng_picker);
                         locationDB.execSQL("INSERT INTO "+tablename+" VALUES('"+pretime_picker+"', '"+curtime_picker+"', "+lat_picker+", "+lng_picker+")");
                         markerUpdate();
                         Toast.makeText(mContext, "마커가 생성되었습니다.", Toast.LENGTH_SHORT).show();
@@ -302,11 +308,8 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
 
             if (locationList.size() > 0) {
                 Location location = locationList.get(locationList.size() - 1);
-                //location = locationList.get(0);
 
                 currentPosition = new LatLng(location.getLatitude(), location.getLongitude());
-
-                Log.d(TAG, "onLocationResult : 위도:" + String.valueOf(location.getLatitude()) + " 경도:" + String.valueOf(location.getLongitude()));
 
                 if(wait!=1) {
                     CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(currentPosition);
@@ -314,6 +317,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
                     mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
                 }
                 wait=1;
+
                 mCurrentLocatiion = location;
             }
         }
@@ -326,12 +330,13 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
             i++;
         }
 
+
         marker_cnt=0;
         Log.d(TAG, "markerDate : "+MainActivity.markerDate);
         //Cursor cursor = locationDB.rawQuery("SELECT * FROM "+tablename+" WHERE preTime<='"+MainActivity.markerDate+" 23:59:59' AND curTime>='"+MainActivity.markerDate+" 00:00:00'", null);
         Cursor cursor = locationDB.rawQuery("SELECT * FROM "+tablename+" WHERE preTime LIKE '"+MainActivity.markerDate+"%' OR curTime LIKE '"+MainActivity.markerDate+"%'", null);
         Cursor cursor_h = locationDB.rawQuery("SELECT * FROM "+tablehome, null);
-        Log.d(TAG, "cnt = "+cursor_h.getCount());
+        Log.d(TAG, "Home cnt = "+cursor_h.getCount());
         if (cursor_h.getCount() != 0){
             while(cursor_h.moveToNext()){
                 name_h = cursor_h.getString(0);
@@ -349,6 +354,13 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
 
                     if (getDistance(Lat_h, Long_h, Lat, Long) > 50){
                         color = "red";
+                        for(int cnt=0; cnt<MyService.infloc.size(); cnt++){
+                            if (MyService.infloc.get(cnt).equals(pretime)){
+                                color = "inf";
+                                Log.d(TAG, "inf marker!");
+                                break;
+                            }
+                        }
                         setCurrentLocation(pretime, curtime, Lat, Long, color); // 나의 이동동선 마커표시
                     } else{
                         locationDB.execSQL("DELETE FROM "+tablename+" WHERE Latitude="+Lat+" AND Longitude="+Long); // 자주가는 장소 근처 위치 삭제
@@ -362,6 +374,12 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
                 Lat = cursor.getDouble(2);
                 Long = cursor.getDouble(3);
                 color = "red";
+                for(int cnt=0; cnt<MyService.infloc.size(); cnt++){
+                    if (MyService.infloc.get(cnt).equals(pretime)){
+                        color = "inf";
+                        break;
+                    }
+                }
                 setCurrentLocation(pretime, curtime, Lat, Long, color); // 나의 이동동선 마커표시
             }
         }
@@ -391,14 +409,24 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
         if (color == "blue"){
             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
             markerOptions.title(name_h);
-            Log.d(TAG, "1");
-        } else{
+        } else if (color == "red"){
             if (curtime == null){
                 markerOptions.title("동선 저장 중..");
             } else{
                 markerOptions.title(pretime+" ~ "+curtime);
             }
-            Log.d(TAG, "0");
+        } else{
+            BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.virus); // maker icon 변경
+            Bitmap b = bitmapdraw.getBitmap();
+            Bitmap smallMarker = Bitmap.createScaledBitmap(b, 100, 100, false); // maker 크기
+            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+            markerOptions.title(pretime+" ~ "+curtime);
+
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(currentLatLng);
+            mMap.moveCamera(cameraUpdate);
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(18));
+
+            wait = 0;
         }
         currentMarker[marker_cnt] = mMap.addMarker(markerOptions);
         marker_cnt++;
@@ -409,18 +437,14 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
     private void startLocationUpdates() //위치를 이동하면서 계속 업데이트하는 과정
     {
         if (!checkLocationServicesStatus()) {
-            Log.d(TAG, "startLocationUpdates : call showDialogForLocationServiceSetting");
             showDialogForLocationServiceSetting();
         } else {
             int hasFineLocationPermission = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION);
             int hasCoarseLocationPermission = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION);
 
             if (hasFineLocationPermission != PackageManager.PERMISSION_GRANTED || hasCoarseLocationPermission != PackageManager.PERMISSION_GRANTED) {
-                Log.d(TAG, "startLocationUpdates : 퍼미션 안가지고 있음");
                 return;
             }
-
-            Log.d(TAG, "startLocationUpdates : call mFusedLocationClient.requestLocationUpdates");
             mFusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
 
 
@@ -433,10 +457,8 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
     @Override
     public void onStart() {
         super.onStart();
-        Log.d(TAG, "onStart");
-
         if (checkPermission()) {
-            Log.d(TAG, "onStart : call mFusedLocationClient.requestLocationUpdates");
+            Log.d(TAG, "CheckPermission");
             mFusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
 
             if (mMap != null)
@@ -448,8 +470,6 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
     public void onStop() {
         super.onStop();
         if (mFusedLocationClient != null) {
-
-            Log.d(TAG, "onStop : call stopLocationUpdates");
             mFusedLocationClient.removeLocationUpdates(locationCallback);
         }
     }
@@ -584,10 +604,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
                 //사용자가 GPS 활성 시켰는지 검사
                 if (checkLocationServicesStatus()) {
                     if (checkLocationServicesStatus()) {
-
-                        Log.d(TAG, "onActivityResult : GPS 활성화 되있음");
                         needRequest = true;
-
                         return;
                     }
                 }
@@ -604,7 +621,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
         fab_develop = viewGroup.findViewById(R.id.fab_develop);
 
         Glide.with(this).load("https://i.imgur.com/n76lRoV.png").into(fab_home);
-        Glide.with(this).load("https://i.imgur.com/M5ywSIa.png").into(fab_send);
+        Glide.with(this).load("https://i.imgur.com/ga31O56.png").into(fab_send);
         Glide.with(this).load("https://i.imgur.com/NUCaHI0.png").into(fab_cal);
         Glide.with(this).load("https://i.imgur.com/6D7W3f3.png").into(fab_develop);
 
@@ -659,36 +676,74 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
     }
 
     public void showCalendar(){
-        callbackMethod = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker view, int y, int m, int d) {
-                MainActivity.year = y;
-                MainActivity.month = m;
-                MainActivity.day = d;
-                Log.d(TAG, "onDateSet : "+MainActivity.day);
-                MainActivity.dateset = true;
+        LayoutInflater inflater = getLayoutInflater();
+        LinearLayout dialog = (LinearLayout) inflater.inflate(R.layout.dialog_calendar, null);
 
-                String year_string = Integer.toString(y);
-                String month_string = String.format("%02d",m+1);
-                String day_string = String.format("%02d",d);
-                String dateMessage = year_string+"-"+month_string+"-"+day_string;
+        long before2week = System.currentTimeMillis() - (24 * 60 * 60 * 1000) * 14;
+        Date mDate = new Date(before2week);
 
-                MainActivity.markerDate = dateMessage;
-                markerUpdate();
-            }
-        };
-
-        final Calendar c = Calendar.getInstance();
+        final MaterialCalendarView materialCalendarView = dialog.findViewById(R.id.calenderView);
         if (MainActivity.dateset == false){
-            MainActivity.year = c.get(Calendar.YEAR);
-            MainActivity.month = c.get(Calendar.MONTH);
-            MainActivity.day = c.get(Calendar.DAY_OF_MONTH);
+            materialCalendarView.setSelectedDate(CalendarDay.today());
+        } else{
+            try {
+                Date setDate = new SimpleDateFormat("yyyy-MM-dd").parse(MainActivity.markerDate);
+                materialCalendarView.setSelectedDate(setDate);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
 
-        DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(),callbackMethod,MainActivity.year,MainActivity.month,MainActivity.day);
-        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - (24 * 60 * 60 * 1000) * 14); // 최소 2주 전 까지 날짜 선택 가능
-        datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis()); // 최대 오늘까지 날짜 선택 가능
-        datePickerDialog.show();
+        if (MyService.infloc.size()!=0){
+            try {
+                Log.d(TAG, "SimpleDateFormat : "+MyService.infloc.get(0));
+                Date infDate = new SimpleDateFormat("yyyy-MM-dd").parse(MyService.infloc.get(0));
+                materialCalendarView.addDecorator(new EventDecorator(Color.RED, Collections.singleton(CalendarDay.from(infDate))));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        materialCalendarView.setSelectionColor(Color.GRAY);
+        materialCalendarView.addDecorators(new SundayDecorator(), new SaturdayDecorator());
+        materialCalendarView.state().edit()
+                .setMinimumDate(mDate)
+                .setMaximumDate(CalendarDay.today())
+                .commit();
+
+        final android.app.AlertDialog.Builder calendar = new android.app.AlertDialog.Builder(getContext());
+        calendar.setView(dialog);
+        calendar.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                CalendarDay selectedDate = materialCalendarView.getSelectedDate();
+                String strDate[] = selectedDate.toString().replaceAll("[^0-9|\\-]","").split("-");
+                Log.d(TAG, "strDate : "+strDate[0]+" "+strDate[1]+" "+strDate[2]);
+                String y = strDate[0];
+                String m = strDate[1];
+                String d = strDate[2];
+
+                MainActivity.year = Integer.parseInt(y);
+                MainActivity.month = Integer.parseInt(m);
+                MainActivity.day = Integer.parseInt(d);
+                MainActivity.dateset = true;
+
+                String year_string = y;
+                String month_string = String.format("%02d",MainActivity.month+1);
+                String day_string = String.format("%02d",MainActivity.day);
+                String dateMessage = year_string+"-"+month_string+"-"+day_string;
+                MainActivity.markerDate = dateMessage;
+                Log.d(TAG, "Select Date : "+dateMessage);
+
+                markerUpdate();
+            }
+        });
+        calendar.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        calendar.show();
     }
 
     private void SendingService(){
@@ -709,7 +764,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
                                 PrintWriter out = new PrintWriter(MyService.networKWriter, true);
                                 data = pretime+"/"+curtime+"/"+Lat+"/"+Long;
                                 out.println(data);
-                                Log.d(TAG,"전송된 데이터: "+data);
+                                Log.d(TAG,"Send Data : "+data);
                             }
                         }.start();
                     }
@@ -719,6 +774,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
                     Toast.makeText(getContext(), "전송 할 데이터가 없습니다.", Toast.LENGTH_SHORT).show();
                 } else{
                     nonot = true;
+                    InfectionChartFragment.state = true;
                     data = "";
                     Toast.makeText(getContext(), "데이터를 전송하였습니다.", Toast.LENGTH_SHORT).show();
                 }
@@ -744,7 +800,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
         builder.setNegativeButton("아니오",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(mContext,"아니오를 선택했습니다.",Toast.LENGTH_LONG).show();
+                        //아니오
                     }
                 });
         builder.show();
@@ -894,7 +950,6 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
     }
 
     public void toggleFab(){
-        Log.d(TAG, String.valueOf(isFabOpen));
         if(isFabOpen){
             fab_home.startAnimation(fab_close);
             fab_send.startAnimation(fab_close);

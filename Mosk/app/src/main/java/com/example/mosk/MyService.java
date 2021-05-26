@@ -34,14 +34,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
 public class MyService extends Service {
 
     public static Intent serviceIntent;
-    public String TAG = "Log";
+    public String TAG = "moskLog";
 
     //SQLite
     SQLiteDatabase locationDB;
@@ -54,7 +56,6 @@ public class MyService extends Service {
     private double pre_lat = 0.0, pre_lng = 0.0;
     private LocationManager lm;
     private Location location;
-    private boolean location_state = false;
     private static final int std_distance = 30; // 기준 거리
 
     //Socket
@@ -72,6 +73,9 @@ public class MyService extends Service {
     private static final String PRIMARY_CHANNEL_ID = "primary_notification_channel";
     private NotificationManager mNotificationManager;
     private static final int NOTIFICATION_ID = 0;
+
+    //Location Infected
+    public static ArrayList<String> infloc = new ArrayList<String>();
 
     @Override
     public void onCreate() {
@@ -122,13 +126,15 @@ public class MyService extends Service {
 
                     while (true) {
                         recv_data = networkReader.readLine(); // 데이터 수신
-                        Log.d(TAG, "recv_data: "+recv_data);
+                        Log.d(TAG, "Recv Data : "+recv_data);
                         String datalist[] = recv_data.split("/");
                         double infLat = Double.parseDouble(datalist[2]);
                         double infLong = Double.parseDouble(datalist[3]);
 
                         Cursor cursor = locationDB.rawQuery("SELECT * FROM "+tablename+" WHERE preTime<='"+datalist[1]+"' AND curTime>='"+datalist[0]+"'", null);
                         while(cursor.moveToNext()){
+                            String pretime = cursor.getString(0);
+                            String curtime = cursor.getString(1);
                             double myLat = cursor.getDouble(2);
                             double myLong = cursor.getDouble(3);
 
@@ -136,9 +142,45 @@ public class MyService extends Service {
                             distance = getDistance(infLat, infLong, myLat, myLong);
 
                             if (distance<std_distance && MapViewFragment.nonot == false){
-                                infstate = 1;
+                                long diff = 0;
+                                long sec = 0;
+
+                                // 개발중
+//                                Log.d(TAG, "preTime : "+pretime);
+//                                String month = pretime.substring(5,7);
+//                                String day = pretime.substring(8,10);
+//                                Log.d(TAG, "day:"+month+" "+day);
+
+                                infloc.add(pretime);
+
+                                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:dd");
+                                Date preDate = dateFormat.parse(pretime);
+                                Date curDate = dateFormat.parse(curtime);
+                                Date preInf = dateFormat.parse(datalist[0]);
+                                Date curInf = dateFormat.parse(datalist[1]);
+
+                                if(preInf.after(preDate)){
+                                    if(curInf.after(curDate)){
+                                        diff = curDate.getTime() - preInf.getTime();
+                                    } else{
+                                        diff = curInf.getTime() - preInf.getTime();
+                                    }
+                                } else{
+                                    diff = curInf.getTime() - preDate.getTime();
+                                }
+                                sec = diff/1000;
+
+                                if (sec<3600){
+                                    Log.d(TAG, "1시간 미만 동안 겹침");
+                                    infstate = 2;
+                                } else if (sec>=3600 & sec<10800){
+                                    Log.d(TAG, "1~3시간 동안 겹침");
+                                    infstate = 3;
+                                } else{
+                                    Log.d(TAG, "3시간 이상 동안 겹침");
+                                    infstate = 4;
+                                }
                                 warningNotification(R.drawable.warning, infstate);
-                                Log.d(TAG, "동선 겹침");
                                 break;
                             }
                         }
@@ -153,27 +195,31 @@ public class MyService extends Service {
                                 distance = getDistance(infLat, infLong, myLat, myLong);
 
                                 if (distance<std_distance && MapViewFragment.nonot == false){
-                                    infstate = 2;
+                                    infstate = 1;
                                     warningNotification(R.drawable.warning2, infstate);
                                     Log.d(TAG, "동선 겹칠 뻔");
                                     break;
                                 }
                             }
                         }
+                        MapViewFragment.nonot = false;
 
                         if (recv_data == null) {
                             networKWriter = null;
                             break;
                         }
                     }
-                } catch (IOException e) {
+                } catch (IOException | ParseException e) {
                     if (sThread == null){
+                        Log.d(TAG, "sThread Exit");
                         break; // 스레드를 종료해도 while문이 작동하는 현상 해결
                     } else{
                         try {
+                            Log.d(TAG, "Socket Connection Wait..");
                             networKWriter = null;
                             sleep(60000); // 서버와 연결이 안되면, 주기적으로 서버와 연결을 요청함
                         } catch (InterruptedException interruptedException) {
+                            Log.d(TAG, "sThread Error");
                             interruptedException.printStackTrace();
                         }
                     }
@@ -198,7 +244,7 @@ public class MyService extends Service {
                     // DB 데이터 확인
                     Cursor cursor = locationDB.rawQuery("SELECT * FROM "+tablename+" WHERE curTime is NULL LIMIT 1", null);
                     int cnt = cursor.getCount();
-                    Log.d(TAG, "cnt = "+cnt);
+                    Log.d(TAG, "MyLocation cnt : "+cnt);
 
                     if (distance < std_distance && cnt == 0){
                         try{
@@ -244,12 +290,13 @@ public class MyService extends Service {
                         String curtime = cursor3.getString(1);
                         double Lat = cursor3.getDouble(2);
                         double Long = cursor3.getDouble(3);
-                        Log.d(TAG,"저장된 데이터: "+pretime+" "+curtime+" "+Lat+" "+Long);
+                        Log.d(TAG,"Store Data : "+pretime+" "+curtime+" "+Lat+" "+Long);
                     }
 
                     sleep(300000);
 
                 } catch (InterruptedException e){
+                    Log.d(TAG, "mThread Error");
                     break;
                 }
             }
@@ -261,7 +308,7 @@ public class MyService extends Service {
         public void onLocationChanged(@NonNull Location location) {
             Latitude = location.getLatitude();
             Longitude = location.getLongitude();
-            Log.d(TAG, "Update: "+Latitude+" "+Longitude);
+            Log.d(TAG, "Location Update : "+Latitude+" "+Longitude);
         }
 
         @Override
@@ -303,7 +350,7 @@ public class MyService extends Service {
         builder.setWhen(0);
         builder.setShowWhen(false);
         Intent notificationIntent = new Intent(this, MainActivity.class);
-        notificationIntent.putExtra("ExtraFragment","Notification");
+        // notificationIntent.putExtra("ExtraFragment","Notification");
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
         builder.setContentIntent(pendingIntent);
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -341,11 +388,11 @@ public class MyService extends Service {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, PRIMARY_CHANNEL_ID);
         builder.setSmallIcon(drawble);
         if (infstate == 1){
-            builder.setContentText("확진자와 동선이 겹쳤습니다.");
-            builder.setContentTitle("위험");
-        } else{
             builder.setContentText("확진자와 동선이 겹쳤을 수 있습니다.");
             builder.setContentTitle("경고");
+        } else{
+            builder.setContentText("확진자와 동선이 겹쳤습니다.");
+            builder.setContentTitle("위험");
         }
         builder.setAutoCancel(true);
         builder.setVibrate(new long[]{1000,1000});
