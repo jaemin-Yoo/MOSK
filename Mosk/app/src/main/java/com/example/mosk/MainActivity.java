@@ -27,6 +27,7 @@ import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.tabs.TabLayout;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
@@ -54,18 +55,18 @@ public class MainActivity extends AppCompatActivity {
         tabLayout = (TabLayout) findViewById(R.id.tab_layout);
         viewPager = (ViewPager) findViewById(R.id.pager);
 
-        String str = getIntent().getStringExtra("ExtraFragment");
-        if(str != null){
-            if(str.equals("Notification")){
-                Handler mHandler = new Handler();
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        viewPager.setCurrentItem(2); // 알림바 클릭 시 지도 Fragment로 이동
-                    }
-                }, 100);
-            }
-        }
+//        String str = getIntent().getStringExtra("ExtraFragment");
+//        if(str != null){
+//            if(str.equals("Notification")){
+//                Handler mHandler = new Handler();
+//                mHandler.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        viewPager.setCurrentItem(2); // 알림바 클릭 시 지도 Fragment로 이동
+//                    }
+//                }, 100);
+//            }
+//        }
 
         //현재날짜 가져오기
         if (dateset == false){
@@ -83,20 +84,11 @@ public class MainActivity extends AppCompatActivity {
         locationDB.execSQL("CREATE TABLE IF NOT EXISTS "+tablehome
                 +" (name VARCHAR(32) PRIMARY KEY, Latitude double NOT NULL, Longitude double NOT NULL)");
 
-
-        //TEST
-//        locationDB.execSQL("INSERT INTO "+tablename+" VALUES('2021-05-02 13:00:00', '2021-05-02 16:00:00', 35.836991613820786, 128.75310147289173)");
-//        locationDB.execSQL("INSERT INTO "+tablename+" VALUES('2021-05-03 13:00:00', '2021-05-03 16:00:00', 35.83693942749087, 128.7534608889037)");
-//        locationDB.execSQL("INSERT INTO "+tablename+" VALUES('2021-05-06 13:00:00', '2021-05-07 01:00:00', 35.836991613820786, 128.75310147289173)");
-//        locationDB.execSQL("INSERT INTO "+tablename+" VALUES('2021-05-10 13:00:00', '2021-05-10 16:00:00', 35.8367045886332, 128.75294054033745)");
-
-
-
-
         // 2주 전 위치정보 삭제
         Cursor cursor = locationDB.rawQuery("SELECT * FROM "+tablename+" WHERE curTime<datetime('now','localtime','-14 days')", null);
         if (cursor.getCount() != 0){
             locationDB.execSQL("DELETE FROM "+tablename+" WHERE curTime<datetime('now','localtime','-14 days')");
+            Log.d(TAG, "2주 전 위치정보가 삭제되었습니다.");
             Toast.makeText(this, "2주 전 위치정보가 삭제되었습니다.", Toast.LENGTH_SHORT).show();
         }
 
@@ -184,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.login_menu) {
-            Toast.makeText(this,"클릭",Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "Login Activity");
             Intent intent=new Intent(this,LoginActivity.class);
             startActivity(intent);//액티비티
         }

@@ -78,6 +78,9 @@ public class InfectionChartFragment<Likebutton> extends Fragment{
     //Socket
     private String data = "";
 
+    //State
+    public static boolean state = false;
+
     public void onAttach(Context context){
         super.onAttach(context);
         mContext=context;
@@ -138,8 +141,6 @@ public class InfectionChartFragment<Likebutton> extends Fragment{
         service_btn.setOnLikeListener(new OnLikeListener() {
             @Override
             public void liked(LikeButton likeButton) {
-                Log.d(TAG,"LIKED");
-                Log.d(TAG,"start!");
                 if (MyService.serviceIntent==null){
                     serviceIntent = new Intent(getActivity(), MyService.class);
                     getActivity().startService(serviceIntent);
@@ -152,8 +153,6 @@ public class InfectionChartFragment<Likebutton> extends Fragment{
 
             @Override
             public void unLiked(LikeButton likeButton) {
-                Log.d(TAG,"UNLIKED");
-                Log.d(TAG,"stop!");
                 if (MyService.serviceIntent!=null){
                     serviceIntent = MyService.serviceIntent;
                     MyService.serviceIntent = null;
@@ -163,9 +162,7 @@ public class InfectionChartFragment<Likebutton> extends Fragment{
                     Toast.makeText(getContext(), "No service..", Toast.LENGTH_SHORT).show();
                 }
             }
-        }
-
-        );
+        });
         setChart(chart);
 
         return viewGroup;
@@ -209,22 +206,32 @@ public class InfectionChartFragment<Likebutton> extends Fragment{
 
         ArrayList<PieEntry> entries = new ArrayList<>();
 
-        if (MyService.infstate == 1) {
-            // 동선이 겹칠 때,
-            entries.add(new PieEntry(80, "감염 위험률"));  // 감염되는 값을 여기에 저장
-            entries.add(new PieEntry(20, "감염 안전율"));
-        } else if (MyService.infstate == 2){
-            // 동선이 겹치진 않았지만 위험할 때,
-            entries.add(new PieEntry(50, "감염 위험률"));  // 감염되는 값을 여기에 저장
-            entries.add(new PieEntry(50, "감염 안전율"));
-        }else if (MapViewFragment.nonot == true){
+        if (state == true){
             // 자신이 감염 되었을 때,
             entries.add(new PieEntry(100,"감염 위험률"));  // 감염되는 값을 여기에 저장
             entries.add(new PieEntry(0,"감염 안전율"));
         } else{
-            // 평상 시
-            entries.add(new PieEntry(0,"감염 위험률"));  // 감염되는 값을 여기에 저장
-            entries.add(new PieEntry(100,"감염 안전율"));
+            if (MyService.infstate == 1) {
+                // 동선이 겹치진 않았지만 위험할 때,
+                entries.add(new PieEntry(50, "감염 위험률"));  // 감염되는 값을 여기에 저장
+                entries.add(new PieEntry(50, "감염 안전율"));
+            } else if (MyService.infstate == 2){
+                // 동선이 1시간 미만 동안 겹칠 때,
+                entries.add(new PieEntry(60, "감염 위험률"));  // 감염되는 값을 여기에 저장
+                entries.add(new PieEntry(40, "감염 안전율"));
+            } else if (MyService.infstate == 3) {
+                // 동선이 1~3시간 동안 겹칠 때,
+                entries.add(new PieEntry(70, "감염 위험률"));  // 감염되는 값을 여기에 저장
+                entries.add(new PieEntry(30, "감염 안전율"));
+            } else if (MyService.infstate == 4) {
+                // 동선이 3시간 이상 동안 겹칠 때,
+                entries.add(new PieEntry(80, "감염 위험률"));  // 감염되는 값을 여기에 저장
+                entries.add(new PieEntry(20, "감염 안전율"));
+            } else{
+                // 평상 시
+                entries.add(new PieEntry(0,"감염 위험률"));  // 감염되는 값을 여기에 저장
+                entries.add(new PieEntry(100,"감염 안전율"));
+            }
         }
 
         PieDataSet dataSet=new PieDataSet(entries,"코로나 감염확률");
