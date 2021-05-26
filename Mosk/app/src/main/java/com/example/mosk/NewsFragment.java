@@ -19,6 +19,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -42,13 +43,15 @@ public class NewsFragment extends Fragment {
     int country_mode=0; // 국가 선택 모드 default(국내) 0, 해외 1
     RadioButton rgbtn_korea,rgbtn_abroad;
 
-    TextView T1V1,T1V2,T1V3,T2V1,T2V2;
+    TextView txtpatient,txt_totalpat,txtstep;
 
     Spinner spinner;
     String[] city_names;
     ArrayAdapter<String> stringArrayAdapter;
     Button searchbtn;
 
+    HospitalAdapter mhospitalAdapter;
+    ListView mListView;
     //클릭리스너
     private NewsFragment.ClickListener listener = new NewsFragment.ClickListener();
 
@@ -83,16 +86,16 @@ public class NewsFragment extends Fragment {
         searchbtn=viewGroup.findViewById(R.id.search_button);
         searchbtn.setOnClickListener(listener);
 
-        T1V1=viewGroup.findViewById(R.id.txtT1V1);
-        T1V2=viewGroup.findViewById(R.id.txtT1V2);
-        T1V3=viewGroup.findViewById(R.id.txtT1V3);
-        T2V1=viewGroup.findViewById(R.id.txtT2V1);
-        T2V2=viewGroup.findViewById(R.id.txtT2V2);
+        txtpatient=viewGroup.findViewById(R.id.txtpatient);
+        txt_totalpat=viewGroup.findViewById(R.id.txt_totalpat);
+        txtstep=viewGroup.findViewById(R.id.txtstep);
 
-        T1V1.setText("");  T1V2.setText("");  T1V3.setText("");  T2V1.setText("");
-        T2V2.setText("");
+        txtpatient.setText("");  txt_totalpat.setText("");  txtstep.setText("");
+        mhospitalAdapter= new HospitalAdapter();
 
-
+        mListView = (ListView) viewGroup.findViewById(R.id.list_hospital);
+        mhospitalAdapter = new HospitalAdapter();
+        mListView.setAdapter(mhospitalAdapter);
         return viewGroup;
     }
 
@@ -118,7 +121,6 @@ public class NewsFragment extends Fragment {
                     spinner.setAdapter(stringArrayAdapter);
                     break;
                 case R.id.search_button:
-                    Toast.makeText(mContext, "검색 버튼 클릭", Toast.LENGTH_SHORT).show();
                     setData();
                 default:
                     break;
@@ -127,8 +129,17 @@ public class NewsFragment extends Fragment {
     }
 
     private void setData(){
-        T1V1.setText("1");  T1V2.setText("2");  T1V3.setText("3");  T2V1.setText("4");
-        T2V2.setText("5");
+        int size=5;
+
+        for(int pos=0;pos<10;pos++){
+            mhospitalAdapter.addItem("이름","전화번호_" , "주소");
+            Toast.makeText(mContext, "검색 버튼 클릭", Toast.LENGTH_SHORT).show();
+        }
+        mListView.setAdapter(mhospitalAdapter);
+        txtpatient.setText("1");
+        txt_totalpat.setText("2");
+        txtstep.setText("3");
+
     }
 
 }

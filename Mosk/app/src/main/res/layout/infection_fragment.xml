@@ -2,15 +2,14 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView
         android:id="@+id/fragment1_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="41dp"
-        android:layout_marginTop="150dp"
+        android:layout_marginTop="30dp"
         android:text="코로나 19 감염 확률"
         android:textColor="@color/brown1"
         android:textSize="40dp"
@@ -27,8 +26,9 @@
             android:id="@+id/pieChart"
             android:layout_width="430dp"
             android:layout_height="528dp"
-            android:layout_marginTop="-70dp"
-            android:layout_gravity="center_horizontal">
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="-58dp">
+
         </com.github.mikephil.charting.charts.PieChart>
 
         <com.like.LikeButton
@@ -38,7 +38,7 @@
             android:layout_height="150dp"
             android:layout_width="150dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="120dp"
+            android:layout_marginTop="130dp"
             app:circle_end_color="@color/yellow1"
             app:circle_start_color="@color/blue2"
             app:dots_primary_color="@color/blue3"
@@ -48,5 +48,19 @@
 
     </FrameLayout>
 
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:text="Button" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/button"
+        android:gravity="end"
+        android:text="Button2" />
 
 </RelativeLayout>

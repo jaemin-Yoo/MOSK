@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -103,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
         AppBarLayout appBarLayout=findViewById(R.id.appbar); //상단 appbar(title, 메뉴 아이콘 위치)
 
         if(appBarLayout.getLayoutParams()!=null){
-            CoordinatorLayout.LayoutParams layoutParams= (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
+            LinearLayout.LayoutParams layoutParams= (LinearLayout.LayoutParams) appBarLayout.getLayoutParams();
             AppBarLayout.Behavior appBarLayoutBehaviour=new AppBarLayout.Behavior();
             appBarLayoutBehaviour.setDragCallback(new AppBarLayout.Behavior.DragCallback() {
                 @Override
@@ -111,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
                     return false;
                 }
             });
-            layoutParams.setBehavior(appBarLayoutBehaviour);
+            //layoutParams.setBehavior(appBarLayoutBehaviour);
         }
         appBarLayout.setExpanded(true);
         setSupportActionBar(toolbar);

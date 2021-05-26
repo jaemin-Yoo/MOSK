@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:stretchColumns="*"
+        android:background="@color/gray2"
+        android:padding="3dp"
+        android:layout_margin="20dp"
+        android:orientation="vertical">
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#ffffff">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#f67280"
+                android:textSize="23sp"
+                android:gravity="center"
+                android:layout_margin="1dp"
+                android:text="이름"
+                />
+        </TableRow>
+        <TableRow
+            android:background="#ffffff"
+            android:layout_height="37dp"
+            >
+            <TextView
+                android:id="@+id/txtname"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="25sp"
+                android:textColor="#000000"
+                android:gravity="center"
+                android:background="@color/white"
+                android:padding="2dp"
+                android:text="의료기관-이름"
+                />
+        </TableRow>
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#ffffff">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="23sp"
+                android:textColor="#f67280"
+                android:gravity="center"
+                android:text="전화번호"
+                android:layout_margin="1dp"
+                />
+
+        </TableRow>
+        <TableRow
+            android:background="#ffffff"
+            android:layout_height="37dp"
+            >
+            <TextView
+                android:id="@+id/txtphnum"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="25sp"
+                android:textColor="#000000"
+                android:gravity="center"
+                android:text="의료기관-전화번호"
+                android:background="@color/white"
+                android:padding="2dp"
+                />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#ffffff">>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="23sp"
+                android:textColor="#f67280"
+                android:gravity="center"
+                android:text="주소"
+                android:background="@color/white"
+                android:padding="2dp"
+                />
+
+        </TableRow>
+        <TableRow
+            android:background="#ffffff"
+            android:layout_height="37dp"
+            >
+            <TextView
+                android:id="@+id/txtadress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="25sp"
+                android:textColor="#000000"
+                android:gravity="center"
+                android:text="의료기관-주소"
+                android:background="@color/white"
+                android:padding="2dp"
+                />
+        </TableRow>
+
+
+</TableLayout>

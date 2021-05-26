@@ -12,15 +12,14 @@
             android:id="@+id/spinner"
             android:layout_width="320dp"
             android:layout_height="42dp"
-            android:layout_marginLeft="14dp"
-            android:layout_marginTop="130dp" />
+            android:layout_marginLeft="14dp" />
 
         <Button
             android:id="@+id/search_button"
             android:layout_width="wrap_content"
             android:layout_height="42dp"
             android:layout_toRightOf="@+id/spinner"
-            android:layout_marginTop="130dp"
+
             android:text="검색">
 
         </Button>
@@ -82,8 +81,9 @@
 
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
                 android:textColor="#000000"
+                android:textSize="18sp"
+
                 android:gravity="center"
                 android:layout_margin="1dp"
                 android:text="총 확진자 수"
@@ -114,7 +114,7 @@
             android:layout_height="37dp"
             >
             <TextView
-                android:id="@+id/txtT1V1"
+                android:id="@+id/txtpatient"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="23sp"
@@ -124,7 +124,7 @@
                 android:text="확진자 수" />
 
             <TextView
-                android:id="@+id/txtT1V2"
+                android:id="@+id/txt_totalpat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="23sp"
@@ -134,7 +134,7 @@
                 android:text="일일 확진자 수" />
 
             <TextView
-                android:id="@+id/txtT1V3"
+                android:id="@+id/txtstep"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#000000"
@@ -146,7 +146,6 @@
     </TableLayout>
 
     <TextView
-        android:layout_marginTop="14dp"
         android:layout_width="match_parent"
         android:layout_height="45dp"
         android:gravity="center"
@@ -157,90 +156,12 @@
         android:fontFamily="@font/app_default"
         android:text="코로나 19 의료기관" />
 
-    <TableLayout
+    <ListView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:stretchColumns="*"
-        android:background="@color/gray2"
-        android:padding="2dp"
+        android:layout_height="fill_parent"
+        android:id="@+id/list_hospital"
         >
-
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="#ffffff">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:textColor="#000000"
-                android:gravity="center"
-                android:layout_margin="1dp"
-                android:text="전화번호"
-                />
-
-        </TableRow>
-        <TableRow
-            android:background="#ffffff"
-            android:layout_height="37dp"
-            >
-            <TextView
-                android:id="@+id/txtT2V1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="23sp"
-                android:textColor="#000000"
-                android:gravity="center"
-                android:layout_margin="1dp"
-                android:text="의료기관-전화번호"
-                />
-        </TableRow>
-    </TableLayout>
-
-    <TableLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:stretchColumns="*"
-        android:background="@color/gray2"
-        android:padding="2dp"
-        >
-
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="#ffffff">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:textColor="#000000"
-                android:gravity="center"
-                android:layout_margin="1dp"
-                android:text="주소"
-                />
-
-        </TableRow>
-        <TableRow
-            android:background="#ffffff"
-            android:layout_height="37dp"
-            >
-            <TextView
-                android:id="@+id/txtT2V2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="23sp"
-                android:textColor="#000000"
-                android:gravity="center"
-                android:layout_margin="1dp"
-                android:text="의료기관-주소"
-                />
-        </TableRow>
-    </TableLayout>
-
+    </ListView>
 
 
 </LinearLayout>
