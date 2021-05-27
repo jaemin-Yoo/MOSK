@@ -773,6 +773,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
                         new Thread(){
                             public void run(){
                                 // 동선 저장 중인 위치는 전송 x
+                                nonot = true;
                                 PrintWriter out = new PrintWriter(MyService.networKWriter, true);
                                 data = pretime+"/"+curtime+"/"+Lat+"/"+Long;
                                 out.println(data);
@@ -785,7 +786,6 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
                 if (data==""){
                     Toast.makeText(getContext(), "전송 할 데이터가 없습니다.", Toast.LENGTH_SHORT).show();
                 } else{
-                    nonot = true;
                     InfectionChartFragment.state = true;
                     data = "";
                     Toast.makeText(getContext(), "데이터를 전송하였습니다.", Toast.LENGTH_SHORT).show();

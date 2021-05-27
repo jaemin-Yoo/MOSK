@@ -145,12 +145,6 @@ public class MyService extends Service {
                                 long diff = 0;
                                 long sec = 0;
 
-                                // 개발중
-//                                Log.d(TAG, "preTime : "+pretime);
-//                                String month = pretime.substring(5,7);
-//                                String day = pretime.substring(8,10);
-//                                Log.d(TAG, "day:"+month+" "+day);
-
                                 infloc.add(pretime);
 
                                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:dd");
@@ -202,13 +196,13 @@ public class MyService extends Service {
                                 }
                             }
                         }
-                        MapViewFragment.nonot = false;
 
                         if (recv_data == null) {
                             networKWriter = null;
                             break;
                         }
                     }
+                    MapViewFragment.nonot = false;
                 } catch (IOException | ParseException e) {
                     if (sThread == null){
                         Log.d(TAG, "sThread Exit");
