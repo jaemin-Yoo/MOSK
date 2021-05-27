@@ -1,6 +1,7 @@
 package com.example.mosk;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 public class HospitalAdapter extends BaseAdapter {
+    private static final String TAG = "moskLog";
 
     private ViewHolder mViewHolder;
 
@@ -96,10 +98,7 @@ public class HospitalAdapter extends BaseAdapter {
     }
 
     public void remove(){
-        int i=0;
-        for(i=0;i<getCount();i++){
-            array_hospital.remove(i);
-        }
+        array_hospital.clear();
         notifyDataSetChanged();
     }
     public class ViewHolder {
