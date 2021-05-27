@@ -7,20 +7,20 @@ import com.android.volley.toolbox.StringRequest;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LoginRequest extends StringRequest {
+public class DataRequest extends StringRequest {
 
     // 서버 URL 설정 ( PHP 파일 연동 )
-    final static private String URL = "http://220.122.46.204:8002/login.php";
+    final static private String URL = "http://220.122.46.204:8002/news_db.php";
     private Map<String, String> map;
 
-
-    public LoginRequest(String userID, String userPassword, Response.Listener<String> listener) {
+    public DataRequest(String city_name,String total_pat,String today_pat,String social_step, Response.Listener<String> listener) {
         super(Method.POST, URL, listener, null);
 
         map = new HashMap<>();
-        map.put("userID",userID);
-        map.put("userPassword", userPassword);
-
+        map.put("city_name", city_name);
+        map.put("total_pat", total_pat);
+        map.put("today_pat", today_pat);
+        map.put("social_step", social_step);
     }
 
     @Override

@@ -24,6 +24,8 @@ import org.json.JSONObject;
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "moskLog";
 
+    public static boolean success = false;
+
     EditText EditID,EditPW;
     ImageView Img_icon;
 
@@ -49,7 +51,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 ClickLogin();
-                finish();
+
             }
         });
         BtnRegister.setOnClickListener(new View.OnClickListener() {
@@ -71,32 +73,10 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-//    private class ClickListener implements View.OnClickListener{
-//
-//        @Override
-//        public void onClick(View v) {
-//            switch(v.getId()){
-//                case R.id.btn_login:
-//                    Log.d(TAG,"로그인");
-//                    ClickLogin();
-//                    finish();
-//
-//                case R.id.btn_register:
-//                    startActivity(intent);
-//                    Toast.makeText(getApplicationContext(),"회원가입",Toast.LENGTH_SHORT).show();
-//
-//                case R.id.imageButton:
-//                    finish();
-//                default:
-//                    break;
-//            }
-//        }
-//    }
 
     private void ClickLogin(){
         String userID = EditID.getText().toString();
         String userPass = EditPW.getText().toString();
-        Toast.makeText(getApplicationContext(), "id: "+userID+"pw: "+userPass, Toast.LENGTH_SHORT).show();
 
         Response.Listener<String> responseListener = new Response.Listener<String>() {
             @Override
@@ -104,14 +84,16 @@ public class LoginActivity extends AppCompatActivity {
                 try {
                         // TODO : 인코딩 문제때문에 한글 DB인 경우 로그인 불가
                     JSONObject  login_jsonObject= new JSONObject(response);
-                    boolean success = login_jsonObject.getBoolean("success");
+                    success = login_jsonObject.getBoolean("success");
                     if (success) { // 로그인에 성공한 경우
                         /*서버에서 받는 아이디와 PW*/
                         String userID = login_jsonObject.getString("userID");
                         String userPass = login_jsonObject.getString("userPassword");
 
+                        Toast.makeText(getApplicationContext(), "id: "+userID+"pw: "+userPass, Toast.LENGTH_SHORT).show();
                         Toast.makeText(getApplicationContext(), "로그인에 성공하셨습니다.", Toast.LENGTH_SHORT).show();
 
+                        finish();
                     } else { // 로그인에 실패한 경우
                         Toast.makeText(getApplicationContext(), "로그인에 실패하였습니다.", Toast.LENGTH_SHORT).show();
                         return;

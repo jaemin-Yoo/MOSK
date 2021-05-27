@@ -24,6 +24,12 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
@@ -34,11 +40,6 @@ public class NewsFragment extends Fragment {
     ViewGroup viewGroup;
     SearchView searchView;
     String TAG="NewsFragement";
-
-    /*리사이클뷰*/
-    private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter; //서버에서 받는 데이터 어댑터
-    private RecyclerView.LayoutManager mLayoutManager;
 
     int country_mode=0; // 국가 선택 모드 default(국내) 0, 해외 1
     RadioButton rgbtn_korea,rgbtn_abroad;
@@ -129,16 +130,61 @@ public class NewsFragment extends Fragment {
     }
 
     private void setData(){
-        int size=5;
+        String local= (String) spinner.getSelectedItem();
+        Log.d(TAG,"LOCAL "+local);
 
-        for(int pos=0;pos<10;pos++){
-            mhospitalAdapter.addItem("이름","전화번호_" , "주소");
-            Toast.makeText(mContext, "검색 버튼 클릭", Toast.LENGTH_SHORT).show();
-        }
-        mListView.setAdapter(mhospitalAdapter);
-        txtpatient.setText("1");
-        txt_totalpat.setText("2");
-        txtstep.setText("3");
+        mhospitalAdapter.remove();
+        txt_totalpat.setText("");
+        txtstep.setText("");
+        txtpatient.setText("");
+        Response.Listener<String> responseListener = new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject news_jsonObject= new JSONObject(response);
+                    boolean success = news_jsonObject.getBoolean("success");
+                    Log.d(TAG,"SUCCESS"+success);
+                    int index=0;
+
+                    if (success) {
+
+                        int Total=news_jsonObject.getInt("Total_InfNum");
+                        int Today=news_jsonObject.getInt("Today_InfNum");
+                        double Step=news_jsonObject.getDouble("Step");
+                        int size=news_jsonObject.getInt("size");
+
+                        String Name[]=new String[size];
+                        String Address[]=new String[size];
+                        String PHNum[]=new String[size];
+
+                        if(size>1){
+                            for(index=0;index<size;index++){
+                                Name[index]=news_jsonObject.getString("Name"+index);
+                                Address[index]=news_jsonObject.getString("Address"+index);
+                                PHNum[index]=news_jsonObject.getString("PhoneNum"+index);
+
+                                mhospitalAdapter.addItem(Name[index],PHNum[index],Address[index]);
+                                Log.d(TAG,"size "+size+"NAME "+Name[index]+"Address "+Address[index]+"PHnum "+PHNum[index]);
+                            }
+                        }
+
+                        mListView.setAdapter(mhospitalAdapter);
+                        txt_totalpat.setText(Total+"");
+                        txtpatient.setText(Today+"");
+                        txtstep.setText((int) Step+"");
+                        Log.d(TAG,success+"total "+Total+"Today "+Today+"Step "+Step);
+                    } else {
+                        return;
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        NewsRequest newsRequest=new NewsRequest(local,responseListener);
+        RequestQueue queue = Volley.newRequestQueue(mContext);
+        queue.add(newsRequest);
 
     }
 

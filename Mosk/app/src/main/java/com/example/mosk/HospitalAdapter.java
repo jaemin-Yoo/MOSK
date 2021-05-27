@@ -95,6 +95,13 @@ public class HospitalAdapter extends BaseAdapter {
 
     }
 
+    public void remove(){
+        int i=0;
+        for(i=0;i<getCount();i++){
+            array_hospital.remove(i);
+        }
+        notifyDataSetChanged();
+    }
     public class ViewHolder {
 
         TextView txt_name,txt_phnum,txt_adress;

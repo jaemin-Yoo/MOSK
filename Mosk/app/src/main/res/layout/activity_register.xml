@@ -43,149 +43,6 @@
                 android:layout_height="wrap_content"
                 >
                 <TextView
-                    android:id="@+id/text_name"
-                    android:layout_width="100dp"
-                    android:layout_height="43dp"
-                    android:fontFamily="@font/app_default"
-                    android:textSize="20sp"
-                    android:gravity="center"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginBottom="10dp"
-                    android:background="@color/mint4"
-                    android:textColor="@color/dark3"
-                    android:text="이름"
-                    >
-                </TextView>
-                <EditText
-                    android:id="@+id/et_name"
-                    android:layout_width="fill_parent"
-                    android:layout_height="43dp"
-                    android:layout_marginBottom="10dp"
-                    android:background="@color/pink1"
-                    android:inputType="textCapWords"
-                    android:padding="10dp"
-                    android:fontFamily="@font/app_default"
-                    android:textColor="#333333"
-                    android:layout_toRightOf="@id/text_name"
-                    android:hint="이름을 입력해주세요."
-                    />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                >
-                <TextView
-                    android:id="@+id/text_age"
-                    android:layout_width="100dp"
-                    android:layout_height="43dp"
-                    android:fontFamily="@font/app_default"
-                    android:textSize="20sp"
-                    android:gravity="center"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginBottom="10dp"
-                    android:background="@color/mint4"
-                    android:textColor="@color/dark3"
-                    android:text="나이"
-                    >
-                </TextView>
-                <Spinner
-                    android:id="@+id/sp_age"
-                    android:layout_width="fill_parent"
-                    android:layout_height="43dp"
-                    android:layout_toRightOf="@id/text_age"
-                    android:background="@color/pink1"
-                    android:entries="@array/AgeValues"
-                    android:backgroundTint="@color/pink1"
-                    />
-
-            </RelativeLayout>
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                >
-                <TextView
-                    android:id="@+id/text_local"
-                    android:layout_width="100dp"
-                    android:layout_height="43dp"
-                    android:fontFamily="@font/app_default"
-                    android:textSize="20sp"
-                    android:gravity="center"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginBottom="10dp"
-                    android:background="@color/mint4"
-                    android:textColor="@color/dark3"
-                    android:text="지역"
-                    >
-                </TextView>
-                <EditText
-                    android:id="@+id/et_local"
-                    android:layout_width="fill_parent"
-                    android:layout_height="43dp"
-                    android:layout_marginBottom="10dp"
-                    android:background="@color/pink1"
-                    android:inputType="textCapWords"
-                    android:padding="10dp"
-                    android:fontFamily="@font/app_default"
-                    android:textColor="#333333"
-                    android:layout_toRightOf="@id/text_local"
-                    android:hint="지역정보를 입력해주세요."
-                    />
-            </RelativeLayout>
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                >
-                <TextView
-                    android:id="@+id/text_infected"
-                    android:layout_width="100dp"
-                    android:layout_height="43dp"
-                    android:fontFamily="@font/app_default"
-                    android:textSize="20sp"
-                    android:gravity="center"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginBottom="10dp"
-                    android:background="@color/mint4"
-                    android:textColor="@color/dark3"
-                    android:text="확진여부"
-                    >
-                </TextView>
-
-                <RadioGroup
-                    android:id="@+id/radioGroup"
-                    android:layout_width="match_parent"
-                    android:layout_height="43dp"
-                    android:layout_toRightOf="@id/text_infected"
-                    android:orientation="horizontal"
-                    >
-                    <RadioButton
-                        android:layout_weight="1"
-                        android:text="예"
-                        android:textColor="@color/pink1"
-                        android:fontFamily="@font/app_default"
-                        android:id="@+id/radio_yes"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:buttonTint="@color/pink1">
-                    </RadioButton>
-                    <RadioButton
-                        android:layout_weight="1"
-                        android:text="아니요"
-                        android:textColor="@color/pink1"
-                        android:fontFamily="@font/app_default"
-                        android:id="@+id/radio_no"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:buttonTint="@color/pink1">
-                    </RadioButton>
-                </RadioGroup>
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                >
-                <TextView
                     android:id="@+id/text_id"
                     android:layout_width="100dp"
                     android:layout_height="43dp"
@@ -243,6 +100,133 @@
                     android:hint="패스워드를 입력해주세요."
                     android:layout_toRightOf="@id/text_pw"/>
             </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                >
+                <TextView
+                    android:id="@+id/text_phnum"
+                    android:layout_width="100dp"
+                    android:layout_height="43dp"
+                    android:fontFamily="@font/app_default"
+                    android:textSize="20sp"
+                    android:gravity="center"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:background="@color/mint4"
+                    android:textColor="@color/dark3"
+                    android:text="전화번호"
+                    >
+                </TextView>
+
+                <EditText
+                    android:id="@+id/et_phnum"
+                    android:layout_width="fill_parent"
+                    android:layout_height="43dp"
+                    android:layout_marginBottom="10dp"
+                    android:background="@color/pink1"
+                    android:inputType='phone'
+                    android:padding="10dp"
+                    android:fontFamily="@font/app_default"
+                    android:textColor="#333333"
+                    android:layout_toRightOf="@id/text_phnum"
+                    android:hint="전화번호를 입력해주세요."
+                    />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                >
+                <TextView
+                    android:id="@+id/text_name"
+                    android:layout_width="100dp"
+                    android:layout_height="43dp"
+                    android:fontFamily="@font/app_default"
+                    android:textSize="20sp"
+                    android:gravity="center"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:background="@color/mint4"
+                    android:textColor="@color/dark3"
+                    android:text="이름"
+                    >
+                </TextView>
+                <EditText
+                    android:id="@+id/et_name"
+                    android:layout_width="fill_parent"
+                    android:layout_height="43dp"
+                    android:layout_marginBottom="10dp"
+                    android:background="@color/pink1"
+                    android:inputType="textCapWords"
+                    android:padding="10dp"
+                    android:fontFamily="@font/app_default"
+                    android:textColor="#333333"
+                    android:layout_toRightOf="@id/text_name"
+                    android:hint="이름을 입력해주세요."
+                    />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                >
+                <TextView
+                    android:id="@+id/text_age"
+                    android:layout_width="100dp"
+                    android:layout_height="43dp"
+                    android:fontFamily="@font/app_default"
+                    android:textSize="20sp"
+                    android:gravity="center"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:background="@color/mint4"
+                    android:textColor="@color/dark3"
+                    android:text="나이"
+                    >
+                </TextView>
+
+                <Spinner
+                    android:id="@+id/sp_age"
+                    android:layout_width="fill_parent"
+                    android:layout_height="43dp"
+                    android:layout_toRightOf="@id/text_age"
+                    android:background="@color/pink1"
+                    android:backgroundTint="@color/pink1"
+                    android:entries="@array/AgeValues" />
+
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                >
+                <TextView
+                    android:id="@+id/text_local"
+                    android:layout_width="100dp"
+                    android:layout_height="43dp"
+                    android:fontFamily="@font/app_default"
+                    android:textSize="20sp"
+                    android:gravity="center"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:background="@color/mint4"
+                    android:textColor="@color/dark3"
+                    android:text="지역"
+                    >
+                </TextView>
+                <Spinner
+                    android:id="@+id/sp_local"
+                    android:layout_width="fill_parent"
+                    android:layout_height="43dp"
+                    android:layout_toRightOf="@id/text_local"
+                    android:background="@color/pink1"
+                    android:backgroundTint="@color/pink1"
+                    android:entries="@array/korea_city" />
+            </RelativeLayout>
+
+
+
 
             <RelativeLayout
                 android:layout_width="wrap_content"

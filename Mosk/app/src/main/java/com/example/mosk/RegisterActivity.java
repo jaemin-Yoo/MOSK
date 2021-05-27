@@ -27,24 +27,23 @@ public class RegisterActivity extends AppCompatActivity {
     private static final String TAG = "moskLog";
 
     ClickListener listener = new ClickListener(); //class 선언하기
-    EditText EditNAME,EditLOCAL,EditID,EditPW;
-    Spinner SpinnerAGE;
+    EditText EditNAME,EditLOCAL,EditID,EditPW,EditPHNUM;
+    Spinner SpinnerAGE,SpinnerLocal;
     RadioGroup RG_Infected;
 
     ImageButton BtnBack;
     ImageView Img_icon;
-    Button Btn_BACK,Btn_REGISTER;
+    Button Btn_REGISTER;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
         EditNAME=findViewById(R.id.et_name);
-        EditLOCAL=findViewById(R.id.et_local);
+        SpinnerLocal=findViewById(R.id.sp_local);
         EditID=findViewById(R.id.et_id);
         EditPW=findViewById(R.id.et_pw);
         SpinnerAGE=findViewById(R.id.sp_age);
-
-        RG_Infected=findViewById(R.id.radioGroup);
+        EditPHNUM=findViewById(R.id.et_phnum);
 
         BtnBack=findViewById(R.id.imageButton);
         Btn_REGISTER=findViewById(R.id.btn_register);
@@ -65,9 +64,7 @@ public class RegisterActivity extends AppCompatActivity {
                 case R.id.btn_register:
                     Log.d(TAG,"회원가입");
                     ClickRegister();
-                    Intent MainIntent=new Intent(RegisterActivity.this,MainActivity.class);
-                    startActivity(MainIntent);
-                    finish();
+
                 case R.id.imageButton:
                     finish();
                 default:
@@ -80,40 +77,49 @@ public class RegisterActivity extends AppCompatActivity {
         String userID = EditID.getText().toString();
         String userPass = EditPW.getText().toString();
         String userName = EditNAME.getText().toString();
-        String userLocal = EditLOCAL.getText().toString();
-        String userAge= (String) SpinnerAGE.getSelectedItem();
+        String userLocal ="";
+        int userAge=0;
+        String userPHNUM=EditPHNUM.getText().toString();
 
-        int id = RG_Infected.getCheckedRadioButtonId();
-        RadioButton rb = (RadioButton) findViewById(id);
-        String userInfected=rb.getText().toString();
+        int local= (int) SpinnerLocal.getSelectedItemId();
+        int age= (int) SpinnerAGE.getSelectedItemId();
 
-        Toast.makeText(getApplicationContext(), "id: "+userID+"pw: "+userPass+"name: "+userName+"Local: "+userLocal+"AGE: "+userAge+"확진여부"+userInfected,Toast.LENGTH_SHORT).show();
+        Log.d(TAG,"LOCAL "+local+"age "+age);
 
-        Response.Listener<String> responseListener = new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                try {
-                    // TODO : 인코딩 문제때문에 한글 DB인 경우 로그인 불가
-                    JSONObject register_jsonObject= new JSONObject(response);
-                    int success = register_jsonObject.getInt("success");
-                    success=0;
-                    if (success==1) { // 로그인에 성공한 경우
+        if(local==0 || age==0){
+            Toast.makeText(getApplicationContext(),"다시 선택해주세요.",Toast.LENGTH_SHORT).show();
+        }else{
+            userLocal= (String) SpinnerLocal.getItemAtPosition(local);
+            userAge= (int) SpinnerAGE.getItemAtPosition(age);
 
-                        Toast.makeText(getApplicationContext(), "회원가입에 성공하셨습니다.", Toast.LENGTH_SHORT).show();
+            Response.Listener<String> responseListener = new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    try {
+                        // TODO : 인코딩 문제때문에 한글 DB인 경우 로그인 불가
+                        JSONObject register_jsonObject= new JSONObject(response);
+                        int success = register_jsonObject.getInt("success");
+                        success=0;
+                        if (success==1) { // 로그인에 성공한 경우
+                            Toast.makeText(getApplicationContext(), "회원가입에 성공하셨습니다.", Toast.LENGTH_SHORT).show();
 
-
-
-                    } else { // 로그인에 실패한 경우
-                        Toast.makeText(getApplicationContext(), "회원가입에 실패하였습니다.", Toast.LENGTH_SHORT).show();
-                        return;
+                        } else { // 로그인에 실패한 경우
+                            Toast.makeText(getApplicationContext(), "회원가입에 실패하였습니다.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
                 }
-            }
-        };
-        RegisterRequest registerRequest = new RegisterRequest(userID, userPass, userName,userLocal,userAge,userInfected,responseListener);
-        RequestQueue queue = Volley.newRequestQueue(this);
-        queue.add(registerRequest);
+            };
+            RegisterRequest registerRequest = new RegisterRequest(userID, userPass,userPHNUM, userName,userAge,userLocal,responseListener);
+            RequestQueue queue = Volley.newRequestQueue(this);
+            queue.add(registerRequest);
+
+            Intent MainIntent=new Intent(RegisterActivity.this,MainActivity.class);
+            startActivity(MainIntent);
+            finish();
+        }
+
     }
 }
