@@ -1,6 +1,7 @@
 package com.example.mosk;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -38,13 +39,12 @@ public class NewsFragment extends Fragment {
 
     Context mContext;
     ViewGroup viewGroup;
-    SearchView searchView;
     String TAG="NewsFragement";
 
     int country_mode=0; // 국가 선택 모드 default(국내) 0, 해외 1
     RadioButton rgbtn_korea,rgbtn_abroad;
 
-    TextView txtpatient,txt_totalpat,txtstep;
+    private TextView txtpatient,txt_totalpat,txtstep, textView;
 
     Spinner spinner;
     String[] city_names;
@@ -70,6 +70,7 @@ public class NewsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         viewGroup= (ViewGroup) inflater.inflate(R.layout.news_fragment,container,false); //xml과 연결
 
+        textView = viewGroup.findViewById(R.id.textView);
 
         rgbtn_korea=viewGroup.findViewById(R.id.rg_korea);
         rgbtn_abroad=viewGroup.findViewById(R.id.rg_abroad);
@@ -116,7 +117,8 @@ public class NewsFragment extends Fragment {
                     break;
                 case R.id.rg_abroad:
                     country_mode=1;
-                    city_names=getResources().getStringArray(R.array.abroad_city); //디폴트 국내
+                    Log.d(TAG,"국외 선택");
+                    city_names=getResources().getStringArray(R.array.abroad_city); //디폴트 국외
                     stringArrayAdapter= new ArrayAdapter<String>(mContext, R.layout.support_simple_spinner_dropdown_item, city_names);
                     stringArrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
                     spinner.setAdapter(stringArrayAdapter);
@@ -137,6 +139,7 @@ public class NewsFragment extends Fragment {
         txt_totalpat.setText("");
         txtstep.setText("");
         txtpatient.setText("");
+        textView.setText("");
         Response.Listener<String> responseListener = new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -157,7 +160,7 @@ public class NewsFragment extends Fragment {
                         String Address[]=new String[size];
                         String PHNum[]=new String[size];
 
-                        if(size>1){
+                        if(size>0){
                             for(index=0;index<size;index++){
                                 Name[index]=news_jsonObject.getString("Name"+index);
                                 Address[index]=news_jsonObject.getString("Address"+index);
@@ -166,6 +169,8 @@ public class NewsFragment extends Fragment {
                                 mhospitalAdapter.addItem(Name[index],PHNum[index],Address[index]);
                                 Log.d(TAG,"size "+size+"NAME "+Name[index]+"Address "+Address[index]+"PHnum "+PHNum[index]);
                             }
+                        } else{
+                            textView.setText("해외 정보는\n제공하지 않습니다.");
                         }
 
                         mListView.setAdapter(mhospitalAdapter);

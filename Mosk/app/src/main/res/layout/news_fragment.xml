@@ -4,28 +4,25 @@
     android:layout_width="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:orientation="horizontal"
+        android:paddingLeft="10dp">
 
         <Spinner
             android:id="@+id/spinner"
-            android:layout_width="320dp"
-            android:layout_height="42dp"
-            android:layout_marginLeft="14dp" />
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
 
         <Button
             android:id="@+id/search_button"
             android:layout_width="wrap_content"
-            android:layout_height="42dp"
-            android:layout_toRightOf="@+id/spinner"
+            android:layout_height="match_parent"
+            android:text="검색"/>
 
-            android:text="검색">
-
-        </Button>
-
-
-    </RelativeLayout>
+    </LinearLayout>
 
     <RadioGroup
         android:orientation="horizontal"
@@ -40,6 +37,7 @@
             android:layout_width="0dp"
             android:text="국내 검색"
             android:id="@+id/rg_korea"
+            android:checked="true"
             android:layout_weight="1"/>
 
         <RadioButton
@@ -156,12 +154,24 @@
         android:fontFamily="@font/app_default"
         android:text="코로나 19 의료기관" />
 
-    <ListView
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="fill_parent"
-        android:id="@+id/list_hospital"
-        >
-    </ListView>
+        android:layout_height="match_parent">
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/list_hospital"/>
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:gravity="center"
+            android:layout_gravity="center"/>
+
+    </FrameLayout>
 
 
 </LinearLayout>
