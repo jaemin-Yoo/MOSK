@@ -123,9 +123,6 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
     private final String tablename = "location";
     private final String tablehome = "place";
 
-    //Notification state
-    public static Boolean nonot = false;
-
     //Calendar
     private DatePickerDialog.OnDateSetListener callbackMethod;
     private TimePickerDialog.OnTimeSetListener callbackpretime;
@@ -811,7 +808,6 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
                         new Thread(){
                             public void run(){
                                 // 동선 저장 중인 위치는 전송 x
-                                nonot = true;
                                 PrintWriter out = new PrintWriter(MyService.networKWriter, true);
                                 data = pretime+"/"+curtime+"/"+Lat+"/"+Long;
                                 out.println(data);

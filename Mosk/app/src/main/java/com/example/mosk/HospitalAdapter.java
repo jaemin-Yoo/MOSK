@@ -97,7 +97,7 @@ public class HospitalAdapter extends BaseAdapter {
 
     }
 
-    public void remove(){
+    public void removeAll(){
         array_hospital.clear();
         notifyDataSetChanged();
     }

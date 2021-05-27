@@ -142,7 +142,7 @@ public class MyService extends Service {
                             double distance = 0.0;
                             distance = getDistance(infLat, infLong, myLat, myLong);
 
-                            if (distance<std_distance && MapViewFragment.nonot == false){
+                            if (distance<std_distance){
                                 long diff = 0;
                                 long sec = 0;
 
@@ -180,7 +180,7 @@ public class MyService extends Service {
                         }
 
                         if (infstate < 2){
-                            Cursor cursor2 = locationDB.rawQuery("SELECT * FROM "+tablename+" WHERE preTime<=datetime('"+datalist[1]+"','+1 hours')", null);
+                            Cursor cursor2 = locationDB.rawQuery("SELECT * FROM "+tablename+" WHERE preTime<=datetime('"+datalist[1]+"','+1 hours') AND preTime>'"+datalist[1]+"'", null);
                             while(cursor2.moveToNext()){
                                 String pretime = cursor2.getString(0);
                                 double myLat = cursor2.getDouble(2);
@@ -189,7 +189,7 @@ public class MyService extends Service {
                                 double distance = 0.0;
                                 distance = getDistance(infLat, infLong, myLat, myLong);
 
-                                if (distance<std_distance && MapViewFragment.nonot == false){
+                                if (distance<std_distance){
                                     warnloc.add(pretime);
                                     infstate = 1;
                                     warningNotification(R.drawable.warning2, infstate);
@@ -202,7 +202,7 @@ public class MyService extends Service {
                             networKWriter = null;
                             break;
                         }
-                        MapViewFragment.nonot = false;
+
                     }
                 } catch (IOException | ParseException e) {
                     if (sThread == null){

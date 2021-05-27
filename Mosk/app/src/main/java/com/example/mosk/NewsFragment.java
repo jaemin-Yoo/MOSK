@@ -44,7 +44,7 @@ public class NewsFragment extends Fragment {
     int country_mode=0; // 국가 선택 모드 default(국내) 0, 해외 1
     RadioButton rgbtn_korea,rgbtn_abroad;
 
-    private TextView txtpatient,txt_totalpat,txtstep, textView;
+    private TextView total_inf, today_inf, txtstep, textView;
 
     Spinner spinner;
     String[] city_names;
@@ -88,11 +88,11 @@ public class NewsFragment extends Fragment {
         searchbtn=viewGroup.findViewById(R.id.search_button);
         searchbtn.setOnClickListener(listener);
 
-        txtpatient=viewGroup.findViewById(R.id.txtpatient);
-        txt_totalpat=viewGroup.findViewById(R.id.txt_totalpat);
+        total_inf=viewGroup.findViewById(R.id.total_inf);
+        today_inf=viewGroup.findViewById(R.id.today_inf);
         txtstep=viewGroup.findViewById(R.id.txtstep);
 
-        txtpatient.setText("");  txt_totalpat.setText("");  txtstep.setText("");
+        total_inf.setText("");  today_inf.setText("");  txtstep.setText("");
         mhospitalAdapter= new HospitalAdapter();
 
         mListView = (ListView) viewGroup.findViewById(R.id.list_hospital);
@@ -135,10 +135,11 @@ public class NewsFragment extends Fragment {
         String local= (String) spinner.getSelectedItem();
         Log.d(TAG,"LOCAL "+local);
 
-        mhospitalAdapter.remove();
-        txt_totalpat.setText("");
+        mhospitalAdapter.removeAll();
+
+        total_inf.setText("");
+        today_inf.setText("");
         txtstep.setText("");
-        txtpatient.setText("");
         textView.setText("");
         Response.Listener<String> responseListener = new Response.Listener<String>() {
             @Override
@@ -173,8 +174,8 @@ public class NewsFragment extends Fragment {
                         }
 
                         mListView.setAdapter(mhospitalAdapter);
-                        txt_totalpat.setText(Total+"");
-                        txtpatient.setText(Today+"");
+                        total_inf.setText(Total+"");
+                        today_inf.setText(Today+"");
                         txtstep.setText((int) Step+"");
                         Log.d(TAG,success+"total "+Total+"Today "+Today+"Step "+Step);
                     } else {

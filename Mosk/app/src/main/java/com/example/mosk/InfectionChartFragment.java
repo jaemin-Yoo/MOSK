@@ -158,6 +158,9 @@ public class InfectionChartFragment<Likebutton> extends Fragment{
                     MyService.serviceIntent = null;
                     getActivity().stopService(serviceIntent);
                     Toast.makeText(getContext(), "Stop", Toast.LENGTH_SHORT).show();
+                    state = false;
+                    MyService.infstate = 0;
+                    setChart(chart);
                 } else{
                     Toast.makeText(getContext(), "No service..", Toast.LENGTH_SHORT).show();
                 }
