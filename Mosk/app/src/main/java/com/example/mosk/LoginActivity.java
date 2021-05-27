@@ -81,6 +81,13 @@ public class LoginActivity extends AppCompatActivity {
         String userID = EditID.getText().toString();
         String userPass = EditPW.getText().toString();
 
+        if (userID.equals("0") & userPass.equals("0")){
+            Intent MainIntent=new Intent(LoginActivity.this,MainActivity.class);
+            startActivity(MainIntent);
+            finish();
+            Toast.makeText(this, "개발자 모드 진입", Toast.LENGTH_SHORT).show();
+        }
+
         Response.Listener<String> responseListener = new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -107,13 +114,6 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 }
             };
-
-        if (userID.equals("0") & userPass.equals("0")){
-            Intent MainIntent=new Intent(LoginActivity.this,MainActivity.class);
-            startActivity(MainIntent);
-            finish();
-            Toast.makeText(this, "개발자 모드 진입", Toast.LENGTH_SHORT).show();
-        }
 
         LoginRequest loginRequest=new LoginRequest(userID,userPass,responseListener);
         RequestQueue queue = Volley.newRequestQueue(this);

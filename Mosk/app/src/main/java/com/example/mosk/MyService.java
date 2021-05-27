@@ -76,6 +76,7 @@ public class MyService extends Service {
 
     //Location Infected
     public static ArrayList<String> infloc = new ArrayList<String>();
+    public static ArrayList<String> warnloc = new ArrayList<String>();
 
     @Override
     public void onCreate() {
@@ -164,10 +165,10 @@ public class MyService extends Service {
                                 }
                                 sec = diff/1000;
 
-                                if (sec<3600){
+                                if (sec<3600 & infstate < 2){
                                     Log.d(TAG, "1시간 미만 동안 겹침");
                                     infstate = 2;
-                                } else if (sec>=3600 & sec<10800){
+                                } else if (sec>=3600 & sec<10800 & infstate < 3){
                                     Log.d(TAG, "1~3시간 동안 겹침");
                                     infstate = 3;
                                 } else{
@@ -175,13 +176,13 @@ public class MyService extends Service {
                                     infstate = 4;
                                 }
                                 warningNotification(R.drawable.warning, infstate);
-                                break;
                             }
                         }
 
-                        if (infstate == 0){
+                        if (infstate < 2){
                             Cursor cursor2 = locationDB.rawQuery("SELECT * FROM "+tablename+" WHERE preTime<=datetime('"+datalist[1]+"','+1 hours')", null);
                             while(cursor2.moveToNext()){
+                                String pretime = cursor2.getString(0);
                                 double myLat = cursor2.getDouble(2);
                                 double myLong = cursor2.getDouble(3);
 
@@ -189,10 +190,10 @@ public class MyService extends Service {
                                 distance = getDistance(infLat, infLong, myLat, myLong);
 
                                 if (distance<std_distance && MapViewFragment.nonot == false){
+                                    warnloc.add(pretime);
                                     infstate = 1;
                                     warningNotification(R.drawable.warning2, infstate);
                                     Log.d(TAG, "동선 겹칠 뻔");
-                                    break;
                                 }
                             }
                         }
@@ -201,8 +202,8 @@ public class MyService extends Service {
                             networKWriter = null;
                             break;
                         }
+                        MapViewFragment.nonot = false;
                     }
-                    MapViewFragment.nonot = false;
                 } catch (IOException | ParseException e) {
                     if (sThread == null){
                         Log.d(TAG, "sThread Exit");

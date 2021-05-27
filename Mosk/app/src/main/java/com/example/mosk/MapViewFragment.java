@@ -371,6 +371,14 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
                                 break;
                             }
                         }
+
+                        for(int cnt=0; cnt<MyService.warnloc.size(); cnt++){
+                            if (MyService.warnloc.get(cnt).equals(pretime)){
+                                color = "warn";
+                                Log.d(TAG, "warn marker!");
+                                break;
+                            }
+                        }
                         setCurrentLocation(pretime, curtime, Lat, Long, color); // 나의 이동동선 마커표시
                     } else{
                         locationDB.execSQL("DELETE FROM "+tablename+" WHERE Latitude="+Lat+" AND Longitude="+Long); // 자주가는 장소 근처 위치 삭제
@@ -384,9 +392,20 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
                 Lat = cursor.getDouble(2);
                 Long = cursor.getDouble(3);
                 color = "red";
+                Log.d(TAG, "infloc.size() : "+MyService.infloc.size());
                 for(int cnt=0; cnt<MyService.infloc.size(); cnt++){
                     if (MyService.infloc.get(cnt).equals(pretime)){
                         color = "inf";
+                        Log.d(TAG, "inf marker!");
+                        break;
+                    }
+                }
+
+                Log.d(TAG, "warnloc.size() : "+MyService.warnloc.size());
+                for(int cnt=0; cnt<MyService.warnloc.size(); cnt++){
+                    if (MyService.warnloc.get(cnt).equals(pretime)){
+                        color = "warn";
+                        Log.d(TAG, "warn marker!");
                         break;
                     }
                 }
@@ -425,7 +444,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
             } else{
                 markerOptions.title(pretime+" ~ "+curtime);
             }
-        } else{
+        } else if (color == "inf"){
             BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.virus); // maker icon 변경
             Bitmap b = bitmapdraw.getBitmap();
             Bitmap smallMarker = Bitmap.createScaledBitmap(b, 100, 100, false); // maker 크기
@@ -437,6 +456,13 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
             mMap.animateCamera(CameraUpdateFactory.zoomTo(18));
 
             wait = 0;
+        } else{
+            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
+            markerOptions.title(pretime+" ~ "+curtime);
+
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(currentLatLng);
+            mMap.moveCamera(cameraUpdate);
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(18));
         }
         currentMarker[marker_cnt] = mMap.addMarker(markerOptions);
         marker_cnt++;
@@ -706,11 +732,23 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
             }
         }
 
+        if (MyService.warnloc.size()!=0){
+            try {
+                for(int cnt=0; cnt<MyService.warnloc.size(); cnt++){
+                    Date warnDate = new SimpleDateFormat("yyyy-MM-dd").parse(MyService.warnloc.get(cnt));
+                    materialCalendarView.addDecorator(new EventDecorator(Color.YELLOW, Collections.singleton(CalendarDay.from(warnDate))));
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+
         if (MyService.infloc.size()!=0){
             try {
-                Log.d(TAG, "SimpleDateFormat : "+MyService.infloc.get(0));
-                Date infDate = new SimpleDateFormat("yyyy-MM-dd").parse(MyService.infloc.get(0));
-                materialCalendarView.addDecorator(new EventDecorator(Color.RED, Collections.singleton(CalendarDay.from(infDate))));
+                for(int cnt=0; cnt<MyService.infloc.size(); cnt++){
+                    Date infDate = new SimpleDateFormat("yyyy-MM-dd").parse(MyService.infloc.get(cnt));
+                    materialCalendarView.addDecorator(new EventDecorator(Color.RED, Collections.singleton(CalendarDay.from(infDate))));
+                }
             } catch (ParseException e) {
                 e.printStackTrace();
             }
