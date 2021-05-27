@@ -142,17 +142,9 @@ public class InfectionChartFragment<Likebutton> extends Fragment{
             @Override
             public void liked(LikeButton likeButton) {
                 if (MyService.serviceIntent==null){
-                    if (LoginActivity.success == true){
-                        //로그인 성공한 상태라면
-                        serviceIntent = new Intent(getActivity(), MyService.class);
-                        getActivity().startService(serviceIntent);
-                        Toast.makeText(getContext(), "Start", Toast.LENGTH_SHORT).show();
-                    } else{
-                        //로그인 해야하는 상태
-                        Toast.makeText(getContext(), "로그인하세요", Toast.LENGTH_SHORT).show();
-                        Intent loginIntent=new Intent(getActivity(),LoginActivity.class);
-                        startActivity(loginIntent);
-                    }
+                    serviceIntent = new Intent(getActivity(), MyService.class);
+                    getActivity().startService(serviceIntent);
+                    Toast.makeText(getContext(), "Start", Toast.LENGTH_SHORT).show();
                 } else{
                     serviceIntent = MyService.serviceIntent;
                     Toast.makeText(getContext(), "already..", Toast.LENGTH_SHORT).show();

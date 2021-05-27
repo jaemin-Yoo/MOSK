@@ -31,7 +31,6 @@ public class LoginActivity extends AppCompatActivity {
 
     Button BtnLogin,BtnRegister;
     ImageButton BtnBack;
-    //ClickListener listener = new ClickListener(); //class 선언하기
     Intent intent;
 
     @Override
@@ -82,15 +81,15 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onResponse(String response) {
                 try {
-                        // TODO : 인코딩 문제때문에 한글 DB인 경우 로그인 불가
+                    // TODO : 인코딩 문제때문에 한글 DB인 경우 로그인 불가
                     JSONObject  login_jsonObject= new JSONObject(response);
                     success = login_jsonObject.getBoolean("success");
+
                     if (success) { // 로그인에 성공한 경우
                         /*서버에서 받는 아이디와 PW*/
                         String userID = login_jsonObject.getString("userID");
-                        String userPass = login_jsonObject.getString("userPassword");
+                        String userPass = login_jsonObject.getString("userPW");
 
-                        Toast.makeText(getApplicationContext(), "id: "+userID+"pw: "+userPass, Toast.LENGTH_SHORT).show();
                         Toast.makeText(getApplicationContext(), "로그인에 성공하셨습니다.", Toast.LENGTH_SHORT).show();
 
                         finish();
