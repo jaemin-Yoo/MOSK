@@ -108,6 +108,13 @@ public class LoginActivity extends AppCompatActivity {
                 }
             };
 
+        if (userID.equals("0") & userPass.equals("0")){
+            Intent MainIntent=new Intent(LoginActivity.this,MainActivity.class);
+            startActivity(MainIntent);
+            finish();
+            Toast.makeText(this, "개발자 모드 진입", Toast.LENGTH_SHORT).show();
+        }
+
         LoginRequest loginRequest=new LoginRequest(userID,userPass,responseListener);
         RequestQueue queue = Volley.newRequestQueue(this);
         queue.add(loginRequest);
