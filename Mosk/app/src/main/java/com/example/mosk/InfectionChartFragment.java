@@ -160,6 +160,8 @@ public class InfectionChartFragment<Likebutton> extends Fragment{
                     Toast.makeText(getContext(), "Stop", Toast.LENGTH_SHORT).show();
                     state = false;
                     MyService.infstate = 0;
+                    MyService.infloc.clear();
+                    MyService.warnloc.clear();
                     setChart(chart);
                 } else{
                     Toast.makeText(getContext(), "No service..", Toast.LENGTH_SHORT).show();
