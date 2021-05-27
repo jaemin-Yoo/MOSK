@@ -757,7 +757,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Act
                 .setMaximumDate(CalendarDay.today())
                 .commit();
 
-        final android.app.AlertDialog.Builder calendar = new android.app.AlertDialog.Builder(getContext());
+        final android.app.AlertDialog.Builder calendar = new android.app.AlertDialog.Builder(getContext(), R.style.CalendarDialogTheme);
         calendar.setView(dialog);
         calendar.setPositiveButton("확인", new DialogInterface.OnClickListener() {
             @Override
