@@ -166,26 +166,4 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.addTab(tabLayout.newTab().setCustomView(view3));
 
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.login_menu) {
-            Log.d(TAG, "Login Activity");
-            Intent intent=new Intent(this,LoginActivity.class);
-            startActivity(intent);//액티비티
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void turn(){
-
-    }
 }

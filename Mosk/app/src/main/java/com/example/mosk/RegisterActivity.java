@@ -109,9 +109,9 @@ public class RegisterActivity extends AppCompatActivity {
                         boolean success = register_jsonObject.getBoolean("success");
                         if (success) { // 로그인에 성공한 경우
                             Toast.makeText(getApplicationContext(), "회원가입에 성공하셨습니다.", Toast.LENGTH_SHORT).show();
-
+                            finish();
                         } else { // 로그인에 실패한 경우
-                            Toast.makeText(getApplicationContext(), "회원가입에 실패하였습니다.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "중복된 번호가 존재합니다.", Toast.LENGTH_SHORT).show();
                             return;
                         }
                     } catch (JSONException e) {
@@ -122,10 +122,6 @@ public class RegisterActivity extends AppCompatActivity {
             RegisterRequest registerRequest = new RegisterRequest(userID, userPass,userPHNUM, userName,userAge,userLocal,responseListener);
             RequestQueue queue = Volley.newRequestQueue(this);
             queue.add(registerRequest);
-
-            Intent MainIntent=new Intent(RegisterActivity.this,MainActivity.class);
-            startActivity(MainIntent);
-            finish();
         }
 
     }

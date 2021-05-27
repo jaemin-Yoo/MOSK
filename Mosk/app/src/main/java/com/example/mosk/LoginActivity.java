@@ -24,8 +24,6 @@ import org.json.JSONObject;
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "moskLog";
 
-    public static boolean success = false;
-
     EditText EditID,EditPW;
     ImageView Img_icon;
 
@@ -37,6 +35,12 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        if (MyService.serviceIntent != null){
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
         EditID=findViewById(R.id.et_id);
         EditPW=findViewById(R.id.et_pw);
 
@@ -83,7 +87,7 @@ public class LoginActivity extends AppCompatActivity {
                 try {
                     // TODO : 인코딩 문제때문에 한글 DB인 경우 로그인 불가
                     JSONObject  login_jsonObject= new JSONObject(response);
-                    success = login_jsonObject.getBoolean("success");
+                    boolean success = login_jsonObject.getBoolean("success");
 
                     if (success) { // 로그인에 성공한 경우
                         /*서버에서 받는 아이디와 PW*/
@@ -91,7 +95,8 @@ public class LoginActivity extends AppCompatActivity {
                         String userPass = login_jsonObject.getString("userPW");
 
                         Toast.makeText(getApplicationContext(), "로그인에 성공하셨습니다.", Toast.LENGTH_SHORT).show();
-
+                        Intent MainIntent=new Intent(LoginActivity.this,MainActivity.class);
+                        startActivity(MainIntent);
                         finish();
                     } else { // 로그인에 실패한 경우
                         Toast.makeText(getApplicationContext(), "로그인에 실패하였습니다.", Toast.LENGTH_SHORT).show();

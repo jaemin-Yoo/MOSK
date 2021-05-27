@@ -167,7 +167,6 @@ public class NewsFragment extends Fragment {
                                 PHNum[index]=news_jsonObject.getString("PhoneNum"+index);
 
                                 mhospitalAdapter.addItem(Name[index],PHNum[index],Address[index]);
-                                Log.d(TAG,"size "+size+"NAME "+Name[index]+"Address "+Address[index]+"PHnum "+PHNum[index]);
                             }
                         } else{
                             textView.setText("해외 정보는\n제공하지 않습니다.");
