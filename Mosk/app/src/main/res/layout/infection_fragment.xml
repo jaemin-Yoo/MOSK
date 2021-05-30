@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView
         android:id="@+id/fragment1_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="41dp"
-        android:layout_marginTop="30dp"
+        android:layout_gravity="center_horizontal"
+        android:paddingVertical="20dp"
         android:text="코로나 19 감염 확률"
         android:textColor="@color/brown1"
         android:textSize="40dp"
@@ -47,4 +48,4 @@
 
     </FrameLayout>
 
-</RelativeLayout>
+</LinearLayout>
